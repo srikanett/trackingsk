@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ค้นหาหมายเลขพัสดุ - ศรีคเนศ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* --- ธีมหลักและตัวแปรสี --- */
+        :root {
+            --bg-light: #E6D3B3;
+            --bg-dark: #DCC7A5;
+            --frame: #CBAE84;
+            --accent: #7C9052;
+            --text: #2E4B39;
+            --clean: #F5F5F5;
+            --green-bright: #22c55e;
+            --orange-warning: #f59e0b;
+            --red-danger: #dc2626;
+        }
+
+        /* --- การตั้งค่าพื้นฐานและ Reset --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* --- Layout หลัก --- */
+        .container {
+            max-width: 840px;
+            margin: auto;
+            background-color: var(--clean);
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid var(--frame);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .main-header {
+            text-align: center;
+            color: var(--text);
+            margin-bottom: 25px;
+            padding-bottom: 0;
+        }
+
+        .header-content {
+            max-width: 672px;
+            margin: 0 auto;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--frame);
+        }
+        
+        .main-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* --- ไอคอนแอดมิน/Home --- */
+        #admin-icon-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            background-color: var(--bg-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--frame);
+            opacity: 0.2; /* Faded by default */
+            transition: all 0.3s ease;
+        }
+
+        #admin-icon-wrapper:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(124, 144, 82, 0.5);
+            opacity: 1; /* Fully visible on hover */
+        }
+
+        #admin-icon-wrapper svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text);
+        }
+
+        /* --- ฟอร์มค้นหา --- */
+        #search-view {
+            text-align: center;
+        }
+
+        .search-primary-instruction {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin: 25px auto 15px auto; /* Adjusted margin-top */
+            max-width: 672px;
+        }
+
+        .search-secondary-instruction {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .search-secondary-instruction p {
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.7;
+            color: var(--text);
+        }
+        
+        .search-hint {
+            font-style: italic;
+            color: var(--red-danger);
+            font-weight: 500;
+        }
+
+        .contact-info {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-family: 'Kanit', sans-serif;
+            border: 3px solid var(--frame);
+            border-radius: 30px;
+            background-color: #fff;
+            color: var(--text);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            text-align: left;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            animation: sparkly-glow 2s ease-in-out infinite;
+        }
+        
+        /* --- หน้าจัดการข้อมูล (แอดมิน) --- */
+        #admin-view {
+            margin-top: 30px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .admin-header .tool-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .admin-header .tool-icon {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--frame);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .admin-header .tool-icon:hover, .admin-header .tool-icon.active {
+            background-color: var(--accent);
+            border-color: var(--text);
+        }
+        .admin-header .tool-icon:hover svg, .admin-header .tool-icon.active svg {
+            fill: var(--clean);
+        }
+        .admin-header .tool-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--text);
+            transition: fill 0.3s ease;
+        }
+
+        #admin-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            background-color: var(--bg-light);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--frame);
+            margin: 0 auto 30px auto;
+            max-width: 672px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group label .required-star {
+            color: var(--red-danger);
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 16px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            border: 3px solid var(--frame);
+            border-radius: 24px;
+            background-color: var(--clean);
+        }
+
+        /* Custom Dropdown Styling */
+        .form-group select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232E4B39' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+        }
+
+        #carrier-other-wrapper {
+            margin-top: 10px;
+        }
+        
+        .form-buttons {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        /* Batch Upload & Download Section */
+        .data-export-section, .batch-upload-section {
+            background-color: var(--bg-light);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--frame);
+            margin: 0 auto 30px auto;
+            max-width: 672px;
+        }
+        .data-export-section h3, .batch-upload-section h3 {
+            margin-bottom: 15px;
+            color: var(--text);
+            text-align: center;
+        }
+        .export-controls, .batch-upload-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .export-filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .export-filters .form-group input, .export-filters .form-group select {
+            padding: 10px;
+            border-radius: 12px;
+        }
+        #excel-upload-label {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
+            border: 2px solid var(--frame);
+            color: var(--clean);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        #excel-upload {
+            display: none;
+        }
+        #file-name {
+            font-style: italic;
+            color: var(--text);
+        }
+        
+        /* --- ตารางข้อมูล (Admin & User) --- */
+        .results-table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--frame);
+        }
+
+        #admin-view .results-table-wrapper {
+            max-width: none;
+        }
+        
+        #user-results-container {
+            max-width: 672px;
+            margin: 20px auto 0 auto;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 8px 12px; /* Reduced padding */
+            border-bottom: 1px solid var(--frame);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .results-table tr td:first-child, .results-table tr th:first-child { border-left: none; }
+        .results-table tr td:last-child, .results-table tr th:last-child { border-right: none; }
+        .results-table tr:last-child td { border-bottom: none; }
+
+        
+        .results-table th {
+             padding: 12px;
+        }
+
+        .results-table th.center-align, .results-table td.center-align {
+            text-align: center;
+        }
+
+        .results-table thead {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
+            color: var(--clean);
+        }
+
+        .results-table tbody tr {
+            background-color: var(--clean);
+        }
+
+        .results-table tbody tr:hover {
+            background-color: var(--bg-dark);
+        }
+
+        .results-table th.sortable {
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .results-table th.sortable .sort-icon::after {
+            content: ' \25B2\25BC'; /* Up/Down arrows */
+            font-size: 0.8em;
+            color: var(--bg-dark);
+            opacity: 0.5;
+        }
+
+        .results-table th.sortable.asc .sort-icon::after {
+            content: ' \25B2'; /* Up arrow */
+            opacity: 1;
+            color: var(--clean);
+        }
+
+        .results-table th.sortable.desc .sort-icon::after {
+            content: ' \25BC'; /* Down arrow */
+            opacity: 1;
+            color: var(--clean);
+        }
+        
+        /* --- สไตล์ปุ่มต่างๆ --- */
+        .btn {
+            padding: 10px 20px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-align: center;
+            color: var(--clean);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
+            border: 2px solid var(--frame);
+            box-shadow: 0 4px 10px rgba(124, 144, 82, 0.3);
+            color: var(--clean);
+            flex-grow: 0;
+            flex-shrink: 0;
+            padding: 0 30px;
+            border-radius: 30px;
+        }
+
+        .btn-search:hover {
+            animation: sparkly-glow 2s ease-in-out infinite;
+            transform: translateY(-2px) scale(1.05);
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
+            border: 2px solid var(--frame);
+            box-shadow: 0 4px 10px rgba(124, 144, 82, 0.3);
+            padding: 12px 16px;
+            width: 100%;
+            max-width: 288px;
+            border-radius: 12px;
+        }
+
+        .btn-cancel {
+            background: var(--bg-dark);
+            border: 2px solid var(--frame);
+            color: var(--text);
+            border-radius: 12px;
+        }
+        
+        .btn-edit {
+            background-color: var(--orange-warning);
+        }
+        
+        .btn-delete {
+            background-color: var(--red-danger);
+        }
+        
+        .btn-view {
+            background-color: var(--accent);
+            padding: 5px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        .btn-view svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--clean);
+        }
+        .btn-view-text {
+            background-color: var(--accent);
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            border-radius: 5px;
+        }
+
+        .btn-copy {
+            background: var(--text);
+            border: 2px solid var(--accent);
+            color: var(--clean);
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn-copy.copied {
+            background: var(--accent);
+            border-color: var(--text);
+        }
+
+        .btn-line {
+            background-color: #06C755;
+            border-radius: 24px;
+            padding: 8px 15px;
+            text-decoration: none;
+        }
+        .btn-line svg {
+            fill: white;
+            width: 20px;
+            height: 20px;
+        }
+
+
+        /* --- Modal & Loader --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: 15px;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        #alert-modal, #confirm-modal {
+            z-index: 1001;
+        }
+
+        .modal-content {
+            background-color: var(--clean);
+            border-radius: 16px;
+            border: 2px solid var(--frame);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+        
+        #alert-modal .modal-content, #confirm-modal .modal-content {
+            max-width: 420px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
+            color: var(--clean);
+            padding: 15px 24px;
+        }
+        .modal-header.error {
+             background: linear-gradient(135deg, var(--red-danger) 0%, #a51a1a 100%);
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            background-color: var(--bg-light);
+            padding: 15px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid var(--frame);
+        }
+
+        #admin-login-modal .modal-content {
+            max-width: 380px;
+        }
+
+        #admin-login-modal input {
+            font-family: 'Kanit', sans-serif;
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-bottom: 2px solid var(--frame);
+            border-radius: 0;
+            text-align: center;
+            background-color: transparent;
+        }
+        #admin-login-modal input:focus {
+            outline: none;
+            border-bottom-color: var(--accent);
+        }
+
+        #details-modal .modal-body, #user-details-modal .modal-body, #summary-modal .modal-body {
+            text-align: left;
+        }
+        #details-modal .modal-body p, #user-details-modal .modal-body p, #summary-modal .modal-body p {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--bg-dark);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+         #details-modal .modal-body p strong, #user-details-modal .modal-body p strong, #summary-modal .modal-body p strong {
+             color: var(--text);
+             font-weight: 500;
+             margin-right: 10px;
+         }
+
+        .highlight {
+            font-weight: 600;
+            color: var(--text);
+            background-color: var(--bg-dark);
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+        
+        .tracking-link {
+            color: var(--text);
+            text-decoration: underline;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .tracking-link:hover {
+            color: var(--accent);
+        }
+        .tracking-link svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .loader-content {
+            text-align: center;
+            color: var(--clean);
+        }
+
+        #loader {
+            border: 8px solid rgba(245, 245, 245, 0.3);
+            border-top: 8px solid var(--clean);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        #loader-text {
+            font-size: 1.2rem;
+            animation: sparkle 1.5s infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes sparkly-glow {
+            0% { box-shadow: 0 0 5px var(--frame), 0 0 10px var(--accent), 0 0 15px var(--frame); }
+            50% { box-shadow: 0 0 10px var(--accent), 0 0 20px var(--frame), 0 0 25px var(--accent); }
+            100% { box-shadow: 0 0 5px var(--frame), 0 0 10px var(--accent), 0 0 15px var(--frame); }
+        }
+
+        /* --- Utility Classes --- */
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 16px;
+            }
+            .main-header h1 {
+                font-size: 1.8rem;
+            }
+            .search-form {
+                flex-direction: column;
+            }
+            
+            #user-results-container .results-table thead {
+                display: none;
+            }
+            #user-results-container .results-table, 
+            #user-results-container .results-table tbody, 
+            #user-results-container .results-table tr, 
+            #user-results-container .results-table td {
+                display: block;
+                width: 100%;
+            }
+            #user-results-container .results-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--frame);
+                border-radius: 5px;
+                padding: 10px;
+            }
+            #user-results-container .results-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                border-bottom: 1px solid var(--bg-dark);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            #user-results-container .results-table td.center-align {
+                justify-content: flex-end;
+            }
+            #user-results-container .results-table td:last-child {
+                border-bottom: none;
+            }
+            #user-results-container .results-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                text-align: left;
+                font-weight: bold;
+                color: var(--text);
+            }
+            .modal-footer {
+                flex-direction: column;
+            }
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="main-header">
+            <div class="header-content">
+                <h1 id="main-title">ค้นหาเลขพัสดุศรีคเนศ เทวาลัย</h1>
+            </div>
+            <p class="search-primary-instruction">ติดตามการขนส่งองค์เทพและวัตถุมงคล ศรีคเนศ เทวาลัย ตามกำหนดเวลาที่แจ้งไว้</p>
+        </header>
+
+        <div id="admin-icon-wrapper" title="สำหรับผู้ดูแลระบบ">
+            <svg id="admin-icon-person" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <svg id="admin-icon-home" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </div>
+
+        <!-- ========== หน้าค้นหาข้อมูล (สำหรับผู้ใช้ทั่วไป) ========== -->
+        <div id="search-view">
+            <form class="search-form" id="search-form">
+                <input type="text" id="search-input" class="search-input" placeholder="ค้นหาด้วย ชื่อ หรือ เบอร์โทรศัพท์...">
+                <button type="submit" class="btn btn-search">ค้นหา</button>
+            </form>
+            <div class="search-secondary-instruction">
+                <p>ค้นหาข้อมูลเพียง <span class="search-hint">กรอกชื่อ หรือเบอร์โทรศัพท์</span> ตำแหน่ง 4 ตัวท้าย<br>หากค้นหาไม่พบ ให้ติดต่อสอบถามเพิ่มเติมทางไลน์</p>
+                <div class="contact-info">
+                    Facebook : ศรีคเนศ Srikanett | Line : @sriganett99 
+                    <a href="https://lin.ee/USKyQQg" target="_blank" class="btn btn-line">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        เพิ่มเพื่อน
+                    </a>
+                </div>
+            </div>
+            <div id="user-results-container" class="results-table-wrapper">
+                 <!-- ผลการค้นหาของผู้ใช้จะแสดงที่นี่ -->
+            </div>
+        </div>
+
+        <!-- ========== หน้าจัดการข้อมูล (สำหรับแอดมิน) ========== -->
+        <div id="admin-view" class="hidden">
+            <div class="admin-header">
+                <h2>จัดการข้อมูลการจัดส่ง</h2>
+                <div class="tool-icons">
+                    <button id="toggle-download-btn" class="tool-icon" title="ดาวน์โหลดข้อมูล">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    </button>
+                    <button id="toggle-upload-btn" class="tool-icon" title="เพิ่มข้อมูลเป็นชุด">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="data-export-section" class="data-export-section hidden">
+                 <h3>ดาวน์โหลดข้อมูลเป็น Excel</h3>
+                 <div class="export-filters">
+                     <div class="form-group">
+                         <label for="filter-start-date">ตั้งแต่วันที่</label>
+                         <input type="date" id="filter-start-date">
+                     </div>
+                     <div class="form-group">
+                         <label for="filter-end-date">ถึงวันที่</label>
+                         <input type="date" id="filter-end-date">
+                     </div>
+                     <div class="form-group full-width">
+                         <label for="filter-carrier">บริษัทขนส่ง</label>
+                         <select id="filter-carrier">
+                            <option value="">-- ทุกบริษัท --</option>
+                            <option value="KEX(Kerry)">KEX(Kerry)</option>
+                            <option value="ไปรษณีย์ไทย">ไปรษณีย์ไทย</option>
+                            <option value="Flash Express">Flash Express</option>
+                            <option value="นิ่มเอ็กซ์เพรส">นิ่มเอ็กซ์เพรส</option>
+                            <option value="J&T">J&T</option>
+                         </select>
+                     </div>
+                 </div>
+                 <button id="download-data-btn" class="btn btn-save">ดาวน์โหลดข้อมูล</button>
+            </div>
+
+            <div id="batch-upload-section" class="batch-upload-section hidden">
+                <h3>เพิ่มข้อมูลเป็นชุด (จาก Excel)</h3>
+                <div class="batch-upload-controls">
+                    <button id="download-template-btn" class="btn btn-cancel">ดาวน์โหลดเทมเพลต</button>
+                    <label for="excel-upload" id="excel-upload-label" class="btn btn-edit">เลือกไฟล์ Excel</label>
+                    <input type="file" id="excel-upload" accept=".xlsx, .xls">
+                    <button id="upload-btn" class="btn btn-save hidden">อัปโหลดและบันทึก</button>
+                </div>
+                <p id="file-name" style="margin-top: 10px;"></p>
+            </div>
+
+            <form id="admin-form">
+                <input type="hidden" id="form-id">
+                <div class="form-group">
+                    <label for="name">ชื่อ-สกุล<span class="required-star">*</span></label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">เบอร์โทรศัพท์<span class="required-star">*</span></label>
+                    <input type="tel" id="phone" required maxlength="10" pattern="\d*">
+                </div>
+                <div class="form-group">
+                    <label for="tracking-number">เลขพัสดุ<span class="required-star">*</span></label>
+                    <input type="text" id="tracking-number" required>
+                </div>
+                 <div class="form-group">
+                    <label for="shipping-date">วันที่ส่ง<span class="required-star">*</span></label>
+                    <input type="date" id="shipping-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="carrier">บริษัทขนส่ง<span class="required-star">*</span></label>
+                    <select id="carrier" required>
+                        <option value="">-- เลือกบริษัทขนส่ง --</option>
+                        <option value="KEX(Kerry)">KEX(Kerry)</option>
+                        <option value="ไปรษณีย์ไทย">ไปรษณีย์ไทย</option>
+                        <option value="Flash Express">Flash Express</option>
+                        <option value="นิ่มเอ็กซ์เพรส">นิ่มเอ็กซ์เพรส</option>
+                        <option value="J&T">J&T</option>
+                        <option value="อื่นๆ">อื่นๆ...</option>
+                    </select>
+                    <div id="carrier-other-wrapper" class="hidden">
+                         <input type="text" id="carrier-other" placeholder="ระบุชื่อบริษัทขนส่ง">
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label for="status">สถานะการขนส่ง</label>
+                    <select id="status">
+                        <option value="เตรียมจัดส่ง">เตรียมจัดส่ง</option>
+                        <option value="อยู่ระหว่างจัดส่ง">อยู่ระหว่างจัดส่ง</option>
+                        <option value="จัดส่งสำเร็จ">จัดส่งสำเร็จ</option>
+                        <option value="พัสดุตีกลับ">พัสดุตีกลับ</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="notes">หมายเหตุ</label>
+                    <textarea id="notes" rows="2" placeholder="เช่น แจ้งเตือนเพิ่มเติม..."></textarea>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" id="btn-cancel-edit" class="btn btn-cancel">ยกเลิก</button>
+                    <button type="submit" class="btn btn-save">บันทึกข้อมูล</button>
+                </div>
+            </form>
+            
+            <div class="results-table-wrapper">
+                <table id="admin-table" class="results-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อ</th>
+                            <th class="center-align">เบอร์โทร</th>
+                            <th class="sortable" data-sort-key="วันที่ส่ง">วันที่ส่ง <span class="sort-icon"></span></th>
+                            <th class="sortable" data-sort-key="หมายเหต">หมายเหตุ <span class="sort-icon"></span></th>
+                            <th class="center-align">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- ข้อมูลจะถูกโหลดมาที่นี่ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== Modals (Popups) ========== -->
+    <div id="loader-overlay" class="modal-overlay">
+        <div class="loader-content">
+            <div id="loader"></div>
+            <p id="loader-text"></p>
+        </div>
+    </div>
+
+    <div id="alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="alert-modal-header" class="modal-header">
+                <h3 id="alert-modal-title"></h3>
+            </div>
+            <div class="modal-body">
+                <p id="alert-modal-message" style="text-align: center; border: none;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="alert-modal-close" class="btn btn-search">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="confirm-modal-header" class="modal-header error">
+                <h3 id="confirm-modal-title">ยืนยันการลบ</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-modal-message" style="text-align: center; border: none;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-cancel-btn" class="btn btn-cancel">ยกเลิก</button>
+                <button id="confirm-delete-btn" class="btn btn-delete">ยืนยันการลบ</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="admin-login-modal" class="modal-overlay">
+         <div class="modal-content">
+            <div class="modal-header"><h3>สำหรับผู้ดูแลระบบ</h3></div>
+            <form id="admin-login-form">
+                <div class="modal-body">
+                    <input type="password" id="admin-password" placeholder="กรุณากรอกรหัสผ่าน" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-save">เข้าสู่ระบบ</button>
+                </div>
+             </form>
+         </div>
+    </div>
+
+    <div id="details-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"><h3>รายละเอียดการจัดส่ง</h3></div>
+            <div class="modal-body" id="details-modal-body"></div>
+            <div class="modal-footer" id="details-modal-footer"></div>
+        </div>
+    </div>
+
+    <div id="user-details-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"><h3>ข้อมูลการจัดส่งของคุณ</h3></div>
+            <div class="modal-body" id="user-details-modal-body"></div>
+            <div class="modal-footer">
+                 <button id="user-modal-close-btn" class="btn btn-cancel">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="summary-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="summary-modal-header" class="modal-header">
+                <h3 id="summary-modal-title"></h3>
+            </div>
+            <div class="modal-body" id="summary-modal-body">
+                <!-- Summary data will be injected here -->
+            </div>
+            <div class="modal-footer">
+                <button id="summary-modal-close" class="btn btn-search">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- ค่าคงที่และตัวแปร ---
+            const API_URL = 'https://script.google.com/macros/s/AKfycbwjq-YftUHHqO3rFfx35U2zpWzJxjQLExz-1T4qk-52eqrdVT5GnOa7RJCSTH_wlxJF/exec';
+            const ADMIN_PASSWORD = '882882';
+            let currentRecordIdForModal = null;
+            let userSearchResults = [];
+            let adminDataCache = []; // Cache for admin data
+            let sortState = { key: 'ID', order: 'desc' };
+            let excelData = [];
+
+            // --- DOM Elements ---
+            const mainTitle = document.getElementById('main-title');
+            const searchView = document.getElementById('search-view');
+            const adminView = document.getElementById('admin-view');
+            const searchForm = document.getElementById('search-form');
+            const searchInput = document.getElementById('search-input');
+            const userResultsContainer = document.getElementById('user-results-container');
+            const adminIconWrapper = document.getElementById('admin-icon-wrapper');
+            const adminIconPerson = document.getElementById('admin-icon-person');
+            const adminIconHome = document.getElementById('admin-icon-home');
+            const adminForm = document.getElementById('admin-form');
+            const adminTableBody = document.getElementById('admin-table-body');
+            const adminTableHeader = document.querySelector('#admin-table thead');
+            
+            // Batch Upload & Download Elements
+            const toggleUploadBtn = document.getElementById('toggle-upload-btn');
+            const toggleDownloadBtn = document.getElementById('toggle-download-btn');
+            const batchUploadSection = document.getElementById('batch-upload-section');
+            const dataExportSection = document.getElementById('data-export-section');
+            const excelUploadInput = document.getElementById('excel-upload');
+            const excelUploadLabel = document.getElementById('excel-upload-label');
+            const uploadBtn = document.getElementById('upload-btn');
+            const downloadTemplateBtn = document.getElementById('download-template-btn');
+            const fileNameDisplay = document.getElementById('file-name');
+            const downloadDataBtn = document.getElementById('download-data-btn');
+            const filterStartDate = document.getElementById('filter-start-date');
+            const filterEndDate = document.getElementById('filter-end-date');
+            const filterCarrier = document.getElementById('filter-carrier');
+
+            // Modals
+            const loaderOverlay = document.getElementById('loader-overlay');
+            const loaderText = document.getElementById('loader-text');
+            const alertModal = document.getElementById('alert-modal');
+            const alertModalTitle = document.getElementById('alert-modal-title');
+            const alertModalMessage = document.getElementById('alert-modal-message');
+            const alertModalCloseBtn = document.getElementById('alert-modal-close');
+            const alertModalHeader = document.getElementById('alert-modal-header');
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmModalMessage = document.getElementById('confirm-modal-message');
+            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const summaryModal = document.getElementById('summary-modal');
+            const summaryModalTitle = document.getElementById('summary-modal-title');
+            const summaryModalBody = document.getElementById('summary-modal-body');
+            const summaryModalCloseBtn = document.getElementById('summary-modal-close');
+
+            const adminLoginModal = document.getElementById('admin-login-modal');
+            const adminLoginForm = document.getElementById('admin-login-form');
+            const adminPasswordInput = document.getElementById('admin-password');
+            const detailsModal = document.getElementById('details-modal');
+            const detailsModalBody = document.getElementById('details-modal-body');
+            const detailsModalFooter = document.getElementById('details-modal-footer');
+            const userDetailsModal = document.getElementById('user-details-modal');
+            const userDetailsModalBody = document.getElementById('user-details-modal-body');
+            const userModalCloseBtn = document.getElementById('user-modal-close-btn');
+            
+            // Admin form fields
+            const formId = document.getElementById('form-id');
+            const formName = document.getElementById('name');
+            const formPhone = document.getElementById('phone');
+            const formTracking = document.getElementById('tracking-number');
+            const formDate = document.getElementById('shipping-date');
+            const formCarrierSelect = document.getElementById('carrier');
+            const formCarrierOtherWrapper = document.getElementById('carrier-other-wrapper');
+            const formCarrierOtherInput = document.getElementById('carrier-other');
+            const formStatus = document.getElementById('status');
+            const formNotes = document.getElementById('notes');
+            const btnCancelEdit = document.getElementById('btn-cancel-edit');
+
+
+            // --- Functions ---
+            const toggleLoader = (show, message = '') => {
+                loaderText.innerHTML = message;
+                loaderOverlay.classList.toggle('show', show);
+            };
+            const showModal = (modalElement) => modalElement.classList.add('show');
+            const hideModal = (modalElement) => modalElement.classList.remove('show');
+
+            const showAlert = (title, message, isError = false) => {
+                alertModalTitle.textContent = title;
+                alertModalMessage.innerHTML = message;
+                alertModalHeader.classList.toggle('error', isError);
+                showModal(alertModal);
+            };
+
+            const showSummaryAlert = (title, formData) => {
+                summaryModalTitle.textContent = title;
+                summaryModalBody.innerHTML = `
+                    <p><strong>ชื่อ:</strong> <span>คุณ ${formData.ชื่อ || 'N/A'}</span></p>
+                    <p><strong>เบอร์โทรศัพท์:</strong> <span>${formatPhoneNumber(formData.เบอร์โทร)}</span></p>
+                    <p><strong>เลขพัสดุ:</strong> <span>${formData.เลขพัสดุ || 'N/A'}</span></p>
+                    <p><strong>บริษัทขนส่ง:</strong> <span>${formData['บริษัทขนส่ง'] || 'N/A'}</span></p>
+                    <p><strong>วันที่ส่ง:</strong> <span>${formatFullDateThai(formData.วันที่ส่ง)}</span></p>
+                    <p><strong>สถานะ:</strong> <span>${formData.สถานะการขนส่ง || 'N/A'}</span></p>
+                `;
+                showModal(summaryModal);
+            };
+
+            const formatFullDateThai = (dateString) => {
+                if (!dateString) return 'N/A';
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) return 'N/A';
+                    return date.toLocaleDateString('th-TH', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                    });
+                } catch (e) { return 'N/A'; }
+            };
+
+            const formatPhoneNumber = (phone) => {
+                let phoneStr = String(phone || '');
+                if (phoneStr.length === 9 && !phoneStr.startsWith('0')) {
+                    phoneStr = '0' + phoneStr;
+                }
+                if (phoneStr.length === 10) {
+                    return `${phoneStr.substring(0, 3)}-${phoneStr.substring(3)}`;
+                }
+                return phoneStr;
+            };
+
+            const getCarrierName = (item) => {
+                if (!item) return 'N/A';
+                return item['บริษัทขนส่ง'] || item.ชื่อขนส่ง || 'N/A';
+            };
+
+            const getTrackingUrl = (carrier, trackingNumber) => {
+                if (!carrier || !trackingNumber) return null;
+                const carrierLower = String(carrier).toLowerCase();
+                let url = null;
+
+                if (carrierLower.includes('kerry') || carrierLower.includes('kex')) {
+                    url = `https://th.kex-express.com/th/track/?track=${trackingNumber}`;
+                } else if (carrierLower.includes('ไปรษณีย์ไทย')) {
+                    url = `https://track.thailandpost.co.th/?trackNumber=${trackingNumber}`;
+                } else if (carrierLower.includes('flash')) {
+                    url = `https://www.flashexpress.co.th/tracking/search/?se=${trackingNumber}`;
+                } else if (carrierLower.includes('j&t')) {
+                    url = `https://www.jtexpress.co.th/service/track?trackNumber=${trackingNumber}`;
+                } else if (carrierLower.includes('นิ่ม') || carrierLower.includes('nim')) {
+                    url = `https://www.nimexpress.com/web/p/tracking?i=${trackingNumber}`;
+                }
+                return url;
+            };
+            
+            // --- User Search Logic ---
+            const handleSearch = async (e) => {
+                e.preventDefault();
+                const searchTerm = searchInput.value.trim();
+                if (!searchTerm) {
+                    showAlert('ข้อมูลไม่ครบถ้วน', 'กรุณากรอกข้อมูลเพื่อค้นหาเลขพัสดุ', true);
+                    return;
+                }
+                
+                toggleLoader(true, '✨ กำลังค้นหาข้อมูล โปรดรอสักครู่... ✨');
+                userResultsContainer.innerHTML = '';
+                
+                try {
+                    const response = await fetch(`${API_URL}?action=search&term=${encodeURIComponent(searchTerm)}`);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const result = await response.json();
+
+                    if (result.success && result.data.length > 0) {
+                        userSearchResults = result.data;
+                        displayUserResultsTable(userSearchResults);
+                    } else {
+                        showAlert('ไม่พบข้อมูล', 'ไม่มีรายชื่อ หรือเบอร์โทรศัพท์ ในฐานข้อมูล<br>กรุณากรอกใหม่อีกครั้ง', true);
+                    }
+                } catch (error) {
+                    console.error('Search Error:', error);
+                    showAlert('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับระบบได้', true);
+                } finally {
+                    toggleLoader(false);
+                }
+            };
+
+            const displayUserResultsTable = (data) => {
+                let tableHTML = `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>ชื่อ</th>
+                                <th>วันที่ส่ง</th>
+                                <th class="center-align">ดูข้อมูล</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                const sortedData = data.sort((a, b) => (b.ID || 0) - (a.ID || 0));
+                sortedData.forEach(item => {
+                    tableHTML += `
+                        <tr>
+                            <td data-label="ชื่อ">คุณ ${item.ชื่อ || ''}</td>
+                            <td data-label="วันที่ส่ง">${formatFullDateThai(item.วันที่ส่ง)}</td>
+                            <td data-label="ดูข้อมูล" class="center-align">
+                                <button class="btn btn-view-text" data-id="${item.ID}">ดูข้อมูล</button>
+                            </td>
+                        </tr>`;
+                });
+                tableHTML += `</tbody></table>`;
+                userResultsContainer.innerHTML = tableHTML;
+            };
+
+            const openUserDetailsModal = (id) => {
+                const item = userSearchResults.find(r => String(r.ID) === String(id));
+                if (!item) return;
+                
+                const carrierName = getCarrierName(item);
+                const trackingUrl = getTrackingUrl(carrierName, item.เลขพัสดุ);
+                const trackingHTML = trackingUrl
+                    ? `<a href="${trackingUrl}" target="_blank" class="tracking-link highlight">${item.เลขพัสดุ || 'N/A'} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8h-2V6.413l-7.793 7.794-1.414-1.414L17.585 5H13V3h8z"/></svg></a>`
+                    : `<span class="highlight">${item.เลขพัสดุ || 'N/A'}</span>`;
+
+                userDetailsModalBody.innerHTML = `
+                    <p><strong>ชื่อ:</strong> <span class="highlight">คุณ ${item.ชื่อ || 'N/A'}</span></p>
+                    <p><strong>วันที่จัดส่ง:</strong> <span>${formatFullDateThai(item.วันที่ส่ง)}</span></p>
+                    <p><strong>บริษัทขนส่ง:</strong> <span>${carrierName}</span></p>
+                    <p><strong>สถานะ:</strong> <span>${item.สถานะการขนส่ง || 'N/A'}</span></p>
+                    <p><strong>เลขพัสดุ:</strong> ${trackingHTML}</p>
+                    <button class="btn btn-copy" data-tracking="${item.เลขพัสดุ}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zM-1 7a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H-.5A.5.5 0 0 1-1 7z"/></svg>
+                        คัดลอกเลขพัสดุ
+                    </button>
+                `;
+                showModal(userDetailsModal);
+            };
+
+            const copyToClipboard = (button, text) => {
+                if (!text || button.classList.contains('copied')) return;
+
+                const originalText = button.innerHTML;
+                const dummy = document.createElement("textarea");
+                document.body.appendChild(dummy);
+                dummy.value = text;
+                dummy.select();
+                
+                try {
+                    document.execCommand("copy");
+                    button.innerHTML = 'คัดลอกแล้ว!';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.classList.remove('copied');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                    showAlert('ผิดพลาด', 'เบราว์เซอร์ของคุณไม่รองรับการคัดลอกอัตโนมัติ', true);
+                }
+                document.body.removeChild(dummy);
+            };
+
+            // --- Admin Logic ---
+            const showAdminView = () => {
+                mainTitle.textContent = "จัดการข้อมูลการจัดส่ง";
+                searchView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                adminIconPerson.classList.add('hidden');
+                adminIconHome.classList.remove('hidden');
+                hideModal(adminLoginModal);
+                fetchAllDataForAdmin();
+            };
+
+            const switchToUserView = () => {
+                mainTitle.textContent = "ค้นหาพัสดุศรีคเนศ";
+                adminView.classList.add('hidden');
+                searchView.classList.remove('hidden');
+                adminIconPerson.classList.remove('hidden');
+                adminIconHome.classList.add('hidden');
+                searchInput.value = '';
+                userResultsContainer.innerHTML = '';
+                resetAdminForm();
+            };
+
+            const fetchAllDataForAdmin = async () => {
+                toggleLoader(true);
+                try {
+                    const response = await fetch(`${API_URL}?action=getAll`);
+                    const result = await response.json();
+                    if (result.success) {
+                        adminDataCache = result.data; // Store in cache
+                        populateAdminTable(adminDataCache);
+                    } else { throw new Error(result.message || 'Failed to get data'); }
+                } catch (error) {
+                    console.error('Fetch All Error:', error);
+                    showAlert('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลทั้งหมดได้', true);
+                } finally { toggleLoader(false); }
+            };
+
+            const populateAdminTable = (data) => {
+                adminTableBody.innerHTML = '';
+                if (!data || data.length === 0) return;
+                
+                const sortedData = [...data].sort((a, b) => {
+                    const valA = a[sortState.key] || '';
+                    const valB = b[sortState.key] || '';
+
+                    if (sortState.key === 'วันที่ส่ง') {
+                        const dateA = valA ? new Date(valA).getTime() : 0;
+                        const dateB = valB ? new Date(valB).getTime() : 0;
+                        return sortState.order === 'asc' ? dateA - dateB : dateB - dateA;
+                    }
+                    
+                    if (sortState.key === 'ID') {
+                        return (b.ID || 0) - (a.ID || 0); // Always descending for ID
+                    }
+
+                    return valA.localeCompare(valB, 'th') * (sortState.order === 'asc' ? 1 : -1);
+                });
+
+                sortedData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.dataset.id = item.ID;
+                    row.innerHTML = `
+                        <td data-label="ชื่อ">คุณ ${item.ชื่อ || ''}</td>
+                        <td data-label="เบอร์โทร" class="center-align">${formatPhoneNumber(item.เบอร์โทร)}</td>
+                        <td data-label="วันที่ส่ง">${formatFullDateThai(item.วันที่ส่ง)}</td>
+                        <td data-label="หมายเหตุ">${item.หมายเหต || '-'}</td>
+                        <td data-label="จัดการ" class="center-align">
+                            <button class="btn btn-view" data-id="${item.ID}" title="ดูข้อมูล">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                            </button>
+                        </td>
+                    `;
+                    adminTableBody.appendChild(row);
+                });
+            };
+            
+            const resetAdminForm = () => {
+                adminForm.reset();
+                formId.value = '';
+                formCarrierOtherWrapper.classList.add('hidden');
+                formCarrierOtherInput.value = '';
+            };
+
+            const handleAdminFormSubmit = (e) => {
+                e.preventDefault();
+                
+                const requiredFields = adminForm.querySelectorAll('[required]');
+                let firstInvalidField = null;
+
+                for (const field of requiredFields) {
+                    if (!field.value.trim()) {
+                        firstInvalidField = field;
+                        break;
+                    }
+                }
+
+                if (firstInvalidField) {
+                    const label = firstInvalidField.closest('.form-group').querySelector('label').textContent.replace('*', '').trim();
+                    showAlert('ข้อมูลไม่ครบถ้วน', `กรุณากรอกข้อมูล: ${label}`, true);
+                    firstInvalidField.focus();
+                    return;
+                }
+
+                const nameValue = formName.value.trim();
+                const namePrefixes = ['คุณ', 'นาย', 'นาง', 'น.ส.', 'นางสาว', 'ด.ช.', 'ด.ญ.'];
+                if (namePrefixes.some(prefix => nameValue.toLowerCase().startsWith(prefix))) {
+                    showAlert('ข้อมูลไม่ถูกต้อง', 'กรุณากรอกชื่อโดยไม่ต้องใส่คำนำหน้า', true);
+                    formName.focus();
+                    return;
+                }
+
+                let carrierValue = formCarrierSelect.value;
+                if (carrierValue === 'อื่นๆ') {
+                    carrierValue = formCarrierOtherInput.value.trim();
+                    if (!carrierValue) {
+                        showAlert('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุชื่อบริษัทขนส่ง', true);
+                        formCarrierOtherInput.focus();
+                        return;
+                    }
+                }
+                
+                toggleLoader(true);
+                const recordId = formId.value;
+                const action = recordId ? 'edit' : 'add';
+                
+                const formData = {
+                    ID: recordId, 
+                    ชื่อ: nameValue, 
+                    เลขพัสดุ: formTracking.value,
+                    เบอร์โทร: formPhone.value, 
+                    'บริษัทขนส่ง': carrierValue, 
+                    วันที่ส่ง: formDate.value,
+                    สถานะการขนส่ง: formStatus.value, 
+                    หมายเหต: formNotes.value
+                };
+                
+                fetch(API_URL, {
+                    method: 'POST', body: JSON.stringify({ action, data: formData }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        showSummaryAlert(action === 'add' ? 'เพิ่มข้อมูลสำเร็จ!' : 'แก้ไขข้อมูลสำเร็จ!', formData);
+                        resetAdminForm();
+                        fetchAllDataForAdmin(); 
+                    } else {
+                        throw new Error(result.message || 'Operation failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Form Submit Error:', error);
+                    showAlert('เกิดข้อผิดพลาด', error.message, true);
+                    fetchAllDataForAdmin();
+                })
+                .finally(() => {
+                    toggleLoader(false);
+                });
+            };
+            
+            const openAdminDetailsModal = (id) => {
+                const item = adminDataCache.find(r => String(r.ID) === String(id));
+                if (!item) return;
+
+                currentRecordIdForModal = item.ID;
+                const carrierName = getCarrierName(item);
+                const trackingUrl = getTrackingUrl(carrierName, item.เลขพัสดุ);
+                const trackingHTML = trackingUrl
+                    ? `<a href="${trackingUrl}" target="_blank" class="tracking-link highlight">${item.เลขพัสดุ || 'N/A'} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8h-2V6.413l-7.793 7.794-1.414-1.414L17.585 5H13V3h8z"/></svg></a>`
+                    : `<span class="highlight">${item.เลขพัสดุ || 'N/A'}</span>`;
+
+                detailsModalBody.innerHTML = `
+                    <p><strong>ชื่อ:</strong> <span class="highlight">คุณ ${item.ชื่อ || 'N/A'}</span></p>
+                    <p><strong>เบอร์โทรศัพท์:</strong> <span>${formatPhoneNumber(item.เบอร์โทร)}</span></p>
+                    <p><strong>เลขพัสดุ:</strong> ${trackingHTML}</p>
+                    <p><strong>บริษัทขนส่ง:</strong> <span>${carrierName}</span></p>
+                    <p><strong>วันที่ส่ง:</strong> <span>${formatFullDateThai(item.วันที่ส่ง)}</span></p>
+                    <p><strong>สถานะ:</strong> <span>${item.สถานะการขนส่ง || 'N/A'}</span></p>
+                `;
+                detailsModalFooter.innerHTML = `
+                    <button id="modal-btn-cancel" class="btn btn-cancel">ยกเลิก</button>
+                    <button id="modal-btn-delete" class="btn btn-delete">ลบข้อมูล</button>
+                    <button id="modal-btn-edit" class="btn btn-edit">แก้ไขข้อมูล</button>
+                `;
+                showModal(detailsModal);
+            };
+
+            const deleteRecord = (id) => {
+                 const itemToDelete = adminDataCache.find(item => String(item.ID) === String(id));
+                 if (!itemToDelete) return;
+                 
+                 toggleLoader(true, '✨ กำลังลบข้อมูล... ✨');
+                 
+                 const originalCache = [...adminDataCache];
+                 adminDataCache = adminDataCache.filter(item => String(item.ID) !== String(id));
+                 populateAdminTable(adminDataCache);
+
+                 fetch(API_URL, {
+                     method: 'POST', body: JSON.stringify({ action: 'delete', data: { ID: id } }),
+                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                 })
+                 .then(response => response.json())
+                 .then(result => {
+                     if (!result.success) {
+                         throw new Error(result.message || 'Delete failed on server');
+                     }
+                     showAlert('สำเร็จ', `ข้อมูลของคุณ ${itemToDelete.ชื่อ} ถูกลบแล้ว`);
+                 })
+                 .catch(error => {
+                     console.error('Delete Error:', error);
+                     showAlert('เกิดข้อผิดพลาด', error.message, true);
+                     adminDataCache = originalCache;
+                     populateAdminTable(adminDataCache);
+                 })
+                 .finally(() => {
+                    toggleLoader(false);
+                 });
+            };
+            
+            const populateFormForEdit = (id) => {
+                const item = adminDataCache.find(r => String(r.ID) === String(id));
+                if (!item) return;
+
+                formId.value = item.ID;
+                formName.value = item.ชื่อ || '';
+                formPhone.value = item.เบอร์โทร || '';
+                formTracking.value = item.เลขพัสดุ || '';
+                formDate.value = item.วันที่ส่ง ? new Date(item.วันที่ส่ง).toISOString().split('T')[0] : '';
+                
+                const carrierValue = getCarrierName(item);
+                const carrierOptions = Array.from(formCarrierSelect.options).map(opt => opt.value);
+                if (carrierOptions.includes(carrierValue)) {
+                    formCarrierSelect.value = carrierValue;
+                    formCarrierOtherWrapper.classList.add('hidden');
+                    formCarrierOtherInput.value = '';
+                } else {
+                    formCarrierSelect.value = 'อื่นๆ';
+                    formCarrierOtherWrapper.classList.remove('hidden');
+                    formCarrierOtherInput.value = carrierValue;
+                }
+                formStatus.value = item.สถานะการขนส่ง || '';
+                formNotes.value = item.หมายเหต || '';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            // --- Batch Upload & Download Logic ---
+            downloadTemplateBtn.addEventListener('click', () => {
+                const templateData = [{
+                    'ชื่อ': 'สมชาย ใจดี',
+                    'เลขพัสดุ': 'EX123456789TH',
+                    'เบอร์โทร': '0812345678',
+                    'บริษัทขนส่ง': 'ไปรษณีย์ไทย',
+                    'วันที่ส่ง': '2025-07-08',
+                    'สถานะการขนส่ง': 'เตรียมจัดส่ง',
+                    'หมายเหต': 'ระวังแตก'
+                }];
+                const worksheet = XLSX.utils.json_to_sheet(templateData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+                XLSX.writeFile(workbook, "Srikhanet_Upload_Template.xlsx");
+            });
+
+            excelUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                fileNameDisplay.textContent = file.name;
+                uploadBtn.classList.remove('hidden');
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    excelData = XLSX.utils.sheet_to_json(worksheet).filter(row => row['ชื่อ'] || row['เลขพัสดุ']);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+
+            uploadBtn.addEventListener('click', () => {
+                if (excelData.length === 0) {
+                    showAlert('ไม่มีข้อมูล', 'ไม่พบข้อมูลในไฟล์ Excel หรือไฟล์อาจจะว่างเปล่า', true);
+                    return;
+                }
+
+                toggleLoader(true);
+                fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'batchAdd', data: excelData }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        showAlert('สำเร็จ', `เพิ่มข้อมูลจำนวน ${excelData.length} รายการเรียบร้อยแล้ว`);
+                        fetchAllDataForAdmin();
+                        excelData = [];
+                        fileNameDisplay.textContent = '';
+                        uploadBtn.classList.add('hidden');
+                        excelUploadInput.value = '';
+                    } else {
+                        throw new Error(result.message || 'Batch upload failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Batch Upload Error:', error);
+                    showAlert('เกิดข้อผิดพลาด', error.message, true);
+                })
+                .finally(() => {
+                    toggleLoader(false);
+                });
+            });
+
+            downloadDataBtn.addEventListener('click', () => {
+                let filteredData = [...adminDataCache];
+
+                const startDate = filterStartDate.value ? new Date(filterStartDate.value).setHours(0,0,0,0) : null;
+                const endDate = filterEndDate.value ? new Date(filterEndDate.value).setHours(23,59,59,999) : null;
+                const carrier = filterCarrier.value;
+
+                if (startDate) {
+                    filteredData = filteredData.filter(item => item.วันที่ส่ง && new Date(item.วันที่ส่ง).getTime() >= startDate);
+                }
+                if (endDate) {
+                    filteredData = filteredData.filter(item => item.วันที่ส่ง && new Date(item.วันที่ส่ง).getTime() <= endDate);
+                }
+                if (carrier) {
+                    filteredData = filteredData.filter(item => getCarrierName(item) === carrier);
+                }
+
+                if (filteredData.length === 0) {
+                    showAlert('ไม่พบข้อมูล', 'ไม่พบข้อมูลตามเงื่อนไขที่เลือก', true);
+                    return;
+                }
+
+                const worksheet = XLSX.utils.json_to_sheet(filteredData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Data");
+                XLSX.writeFile(workbook, "Filtered_Srikhanet_Data.xlsx");
+            });
+
+
+            // --- Event Listeners ---
+            searchForm.addEventListener('submit', handleSearch);
+            alertModalCloseBtn.addEventListener('click', () => hideModal(alertModal));
+            summaryModalCloseBtn.addEventListener('click', () => hideModal(summaryModal));
+            
+            adminIconWrapper.addEventListener('click', () => {
+                if (adminView.classList.contains('hidden')) {
+                    showModal(adminLoginModal);
+                    setTimeout(() => adminPasswordInput.focus(), 100);
+                } else {
+                    switchToUserView();
+                }
+            });
+
+            adminLoginModal.addEventListener('click', (e) => { if (e.target === adminLoginModal) hideModal(adminLoginModal); });
+            adminLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (adminPasswordInput.value === ADMIN_PASSWORD) {
+                    showAdminView();
+                } else {
+                    showAlert('รหัสผ่านไม่ถูกต้อง', 'ระบบนี้สำหรับการเข้าใช้งานของแอดมินเท่านั้น<br>กรุณากรอกรหัสผ่านให้ถูกต้อง', true);
+                    adminPasswordInput.value = '';
+                }
+            });
+            adminForm.addEventListener('submit', handleAdminFormSubmit);
+            adminTableBody.addEventListener('click', (e) => {
+                const target = e.target.closest('.btn-view');
+                if (target) openAdminDetailsModal(target.dataset.id);
+            });
+            adminTableHeader.addEventListener('click', (e) => {
+                const header = e.target.closest('th.sortable');
+                if (!header) return;
+
+                const newKey = header.dataset.sortKey;
+
+                if (sortState.key === newKey) {
+                    sortState.order = sortState.order === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortState.key = newKey;
+                    sortState.order = 'asc';
+                }
+                
+                document.querySelectorAll('#admin-table th.sortable').forEach(th => {
+                    th.classList.remove('asc', 'desc');
+                });
+                header.classList.add(sortState.order);
+
+                populateAdminTable(adminDataCache);
+            });
+            btnCancelEdit.addEventListener('click', resetAdminForm);
+            formCarrierSelect.addEventListener('change', () => {
+                formCarrierOtherWrapper.classList.toggle('hidden', formCarrierSelect.value !== 'อื่นๆ');
+            });
+
+            formPhone.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+
+            toggleUploadBtn.addEventListener('click', () => {
+                batchUploadSection.classList.toggle('hidden');
+                toggleUploadBtn.classList.toggle('active');
+                dataExportSection.classList.add('hidden');
+                toggleDownloadBtn.classList.remove('active');
+            });
+
+            toggleDownloadBtn.addEventListener('click', () => {
+                dataExportSection.classList.toggle('hidden');
+                toggleDownloadBtn.classList.toggle('active');
+                batchUploadSection.classList.add('hidden');
+                toggleUploadBtn.classList.remove('active');
+            });
+
+            detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) hideModal(detailsModal); });
+            detailsModalFooter.addEventListener('click', (e) => {
+                const targetId = e.target.id;
+                if (targetId === 'modal-btn-cancel') {
+                    hideModal(detailsModal);
+                } else if (targetId === 'modal-btn-delete') {
+                    const itemToDelete = adminDataCache.find(item => String(item.ID) === String(currentRecordIdForModal));
+                    if(itemToDelete) {
+                        confirmModalMessage.innerHTML = `คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของคุณ <strong>${itemToDelete.ชื่อ}</strong>?`;
+                        showModal(confirmModal);
+                    }
+                } else if (targetId === 'modal-btn-edit') {
+                    hideModal(detailsModal);
+                    populateFormForEdit(currentRecordIdForModal);
+                }
+            });
+
+            confirmCancelBtn.addEventListener('click', () => hideModal(confirmModal));
+            confirmDeleteBtn.addEventListener('click', () => {
+                hideModal(confirmModal);
+                hideModal(detailsModal);
+                deleteRecord(currentRecordIdForModal);
+            });
+
+            userResultsContainer.addEventListener('click', (e) => {
+                const viewBtn = e.target.closest('.btn-view-text');
+                if (viewBtn) openUserDetailsModal(viewBtn.dataset.id);
+            });
+            userDetailsModal.addEventListener('click', (e) => {
+                if (e.target === userDetailsModal) hideModal(userDetailsModal);
+                const copyBtn = e.target.closest('.btn-copy');
+                if(copyBtn) copyToClipboard(copyBtn, copyBtn.dataset.tracking);
+            });
+            userModalCloseBtn.addEventListener('click', () => hideModal(userDetailsModal));
+        });
+    </script>
+</body>
+</html>
