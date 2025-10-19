@@ -3,1704 +3,2139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ค้นหาหมายเลขพัสดุ - ศรีคเนศ</title>
+    <title>ระบบจัดการข้อมูล ศรีคเนศ เทวาลัย</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="เว็บแอปพลิเคชันสำหรับจัดการข้อมูลลูกค้าและข้อมูลการสั่งซื้อของศรีคเนศ เทวาลัย">
+    <meta name="keywords" content="ศรีคเนศ, เทวาลัย, จัดการข้อมูล, ลูกค้า, สั่งซื้อ, srikanett, data management">
+    <meta name="author" content="Srikhanesh Devalai">
+
+    <!-- Open Graph Meta Tags (for social sharing) -->
+    <meta property="og:title" content="ระบบจัดการข้อมูล ศรีคเนศ เทวาลัย">
+    <meta property="og:description" content="จัดการข้อมูลลูกค้าและข้อมูลการสั่งซื้ออย่างมีประสิทธิภาพ">
+    <meta property="og:image" content="https://placehold.co/1200x630/BA4297/FFFFFF?text=Srikhanesh+Devalai">
+    <meta property="og:type" content="website">
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* --- ธีมหลักและตัวแปรสี --- */
         :root {
-            --bg-light: #E6D3B3;
-            --bg-dark: #DCC7A5;
-            --frame: #CBAE84;
-            --accent: #7C9052;
-            --text: #2E4B39;
-            --clean: #F5F5F5;
-            --green-bright: #22c55e;
-            --orange-warning: #f59e0b;
-            --red-danger: #dc2626;
+            /* Colors - Bright Pink Theme */
+            --primary-gradient: linear-gradient(to right, #BA4297, #E95384);
+            --primary-shadow-color: rgba(186, 66, 151, 0.4);
+            --status-success: #FFCC5A; /* Gold Yellow for Success/General */
+            --status-error: #FF746E;   /* Coral Red for Error */
+            --focus-ring-color: rgba(233, 83, 132, 0.8);
+            --accent-color: #FF9F5D;
+
+            /* Typography */
+            --font-family: 'Noto Sans Thai', sans-serif;
+            --text-primary: #F5F5F7;
+            --text-secondary: rgba(245, 245, 247, 0.8);
+            --text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+            /* Glassmorphism Effect */
+            --glass-background: rgba(50, 50, 46, 0.25);
+            --glass-backdrop-blur: blur(30px);
+            --glass-border-color: rgba(255, 255, 255, 0.3);
+            --glass-box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
         }
 
-        /* --- การตั้งค่าพื้นฐานและ Reset --- */
-        * {
+        html, body {
+            height: 100%;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            overflow: hidden;
         }
 
         body {
-            font-family: 'Kanit', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text);
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        /* --- Layout หลัก --- */
-        .container {
-            max-width: 840px;
-            margin: auto;
-            background-color: var(--clean);
-            padding: 24px;
-            border-radius: 12px;
-            border: 2px solid var(--frame);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            font-family: var(--font-family);
+            background-color: #1A1A2E; /* Fallback */
+            color: var(--text-secondary);
             position: relative;
         }
-        
-        .main-header {
-            text-align: center;
-            color: var(--text);
-            margin-bottom: 25px;
-            padding-bottom: 0;
-        }
 
-        .header-content {
-            max-width: 672px;
-            margin: 0 auto;
-            padding-bottom: 15px;
-            border-bottom: 3px solid var(--frame);
-        }
-        
-        .main-header h1 {
-            font-size: 2.2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        /* --- ไอคอนแอดมิน/Home --- */
-        #admin-icon-wrapper {
+        body::before,
+        body::after {
+            content: "";
             position: absolute;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            background-color: var(--bg-dark);
+            z-index: -1;
+            opacity: 0.4;
+            filter: blur(100px);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--frame);
-            opacity: 0.2; /* Faded by default */
+        }
+
+        body::before {
+            width: 40vw;
+            height: 40vw;
+            min-width: 350px;
+            min-height: 350px;
+            top: -20vh;
+            left: -20vw;
+            background: radial-gradient(circle, #780068, #BA4297, #E95384);
+            animation: move-aurora-1 25s infinite alternate ease-in-out;
+        }
+
+        body::after {
+            width: 50vw;
+            height: 50vw;
+            min-width: 400px;
+            min-height: 400px;
+            bottom: -25vh;
+            right: -25vw;
+            background: radial-gradient(circle, #FF746E, #FF9F5D, #FFCC5A);
+            animation: move-aurora-2 30s infinite alternate ease-in-out;
+        }
+
+        @keyframes move-aurora-1 {
+            to { transform: translate(50vw, 50vh); }
+        }
+
+        @keyframes move-aurora-2 {
+            to { transform: translate(-60vw, -40vh); }
+        }
+
+        .main-container {
+            height: 100vh;
+            width: 100vw;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .glass-panel {
+            background: var(--glass-background);
+            backdrop-filter: var(--glass-backdrop-blur);
+            -webkit-backdrop-filter: var(--glass-backdrop-blur);
+            border: 1px solid var(--glass-border-color);
+            box-shadow: var(--glass-box-shadow);
+            border-radius: 1.5rem;
+        }
+
+        .main-title { 
+            color: var(--text-primary);
+            text-shadow: var(--text-shadow);
+        }
+
+        .table-header { 
+            background-color: rgba(35, 35, 45, 0.4);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .table-header th { color: var(--text-primary); }
+
+        .table-row-light { background-color: rgba(255, 255, 255, 0.05); }
+        .table-row-dark { background-color: rgba(255, 255, 255, 0.1); }
+        
+        #data-table-body tr, #customer-table-body tr { transition: all 0.2s ease-in-out; }
+        #data-table-body tr:hover, #customer-table-body tr:hover {
+            transform: scale(1.01);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.15);
+            position: relative; z-index: 11;
+        }
+
+        .btn { 
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 2.5rem;
             transition: all 0.3s ease;
-        }
-
-        #admin-icon-wrapper:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 10px rgba(124, 144, 82, 0.5);
-            opacity: 1; /* Fully visible on hover */
-        }
-
-        #admin-icon-wrapper svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--text);
-        }
-
-        /* --- ฟอร์มค้นหา --- */
-        #search-view {
-            text-align: center;
-        }
-
-        .search-primary-instruction {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-        
-        .search-form {
-            display: flex;
-            gap: 10px;
-            margin: 25px auto 15px auto; /* Adjusted margin-top */
-            max-width: 672px;
-        }
-
-        .search-secondary-instruction {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .search-secondary-instruction p {
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.7;
-            color: var(--text);
-        }
-        
-        .search-hint {
-            font-style: italic;
-            color: var(--red-danger);
-            font-weight: 500;
-        }
-
-        .contact-info {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .search-input {
-            flex-grow: 1;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-family: 'Kanit', sans-serif;
-            border: 3px solid var(--frame);
-            border-radius: 30px;
-            background-color: #fff;
-            color: var(--text);
-            transition: border-color 0.3s, box-shadow 0.3s;
-            text-align: left;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            animation: sparkly-glow 2s ease-in-out infinite;
-        }
-        
-        /* --- หน้าจัดการข้อมูล (แอดมิน) --- */
-        #admin-view {
-            margin-top: 30px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .admin-header .tool-icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .admin-header .tool-icon {
-            background-color: var(--bg-dark);
-            border: 1px solid var(--frame);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .admin-header .tool-icon:hover, .admin-header .tool-icon.active {
-            background-color: var(--accent);
-            border-color: var(--text);
-        }
-        .admin-header .tool-icon:hover svg, .admin-header .tool-icon.active svg {
-            fill: var(--clean);
-        }
-        .admin-header .tool-icon svg {
-            width: 22px;
-            height: 22px;
-            fill: var(--text);
-            transition: fill 0.3s ease;
-        }
-
-        #admin-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            background-color: var(--bg-light);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--frame);
-            margin: 0 auto 30px auto;
-            max-width: 672px;
+            text-shadow: var(--text-shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
         }
         
-        .form-group {
-            display: flex;
-            flex-direction: column;
+        .btn-primary { 
+            background-image: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 20px 0 var(--primary-shadow-color);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px 0 var(--primary-shadow-color);
         }
         
-        .form-group.full-width {
-            grid-column: 1 / -1;
+        .btn-secondary { 
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid var(--glass-border-color);
+            color: var(--text-primary);
+        }
+        .btn-secondary:hover { 
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
-        .form-group label {
-            margin-bottom: 5px;
-            font-weight: 500;
+        .tab-btn { 
+            background: transparent;
+            color: var(--text-secondary);
         }
-
-        .form-group label .required-star {
-            color: var(--red-danger);
-            font-weight: bold;
-            margin-left: 4px;
+        .tab-btn.active { 
+            background: var(--accent-color); 
+            color: white;
+            box-shadow: 0 2px 10px rgba(255, 159, 93, 0.4);
         }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 16px;
-            font-family: 'Kanit', sans-serif;
+        
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--glass-border-color);
+            color: var(--text-primary);
+            border-radius: 1.5rem;
+            transition: all 0.2s ease;
             font-size: 1rem;
-            border: 3px solid var(--frame);
-            border-radius: 24px;
-            background-color: var(--clean);
         }
 
-        /* Custom Dropdown Styling */
-        .form-group select {
+        /* Custom Dropdown (Sheet Selector) Style */
+        #sheet-selector {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232E4B39' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            
+            background-color: rgba(35, 35, 45, 0.5);
+            border-radius: 0.75rem;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            border-width: 1px;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 1em;
-            padding-right: 2.5rem;
-        }
-
-        #carrier-other-wrapper {
-            margin-top: 10px;
+            background-position: right 0.75rem center;
+            background-size: 1.25em;
         }
         
-        .form-buttons {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        /* Batch Upload & Download Section */
-        .data-export-section, .batch-upload-section {
-            background-color: var(--bg-light);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--frame);
-            margin: 0 auto 30px auto;
-            max-width: 672px;
-        }
-        .data-export-section h3, .batch-upload-section h3 {
-            margin-bottom: 15px;
-            color: var(--text);
-            text-align: center;
-        }
-        .export-controls, .batch-upload-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .export-filters {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .export-filters .form-group input, .export-filters .form-group select {
-            padding: 10px;
-            border-radius: 12px;
-        }
-        #excel-upload-label {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
-            border: 2px solid var(--frame);
-            color: var(--clean);
-            padding: 12px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-        }
-        #excel-upload {
-            display: none;
-        }
-        #file-name {
-            font-style: italic;
-            color: var(--text);
-        }
-        
-        /* --- ตารางข้อมูล (Admin & User) --- */
-        .results-table-wrapper {
-            overflow-x: auto;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--frame);
-        }
-
-        #admin-view .results-table-wrapper {
-            max-width: none;
-        }
-        
-        #user-results-container {
-            max-width: 672px;
-            margin: 20px auto 0 auto;
-        }
-        
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .results-table th,
-        .results-table td {
-            padding: 8px 12px; /* Reduced padding */
-            border-bottom: 1px solid var(--frame);
-            text-align: left;
-            vertical-align: middle;
-        }
-
-        .results-table tr td:first-child, .results-table tr th:first-child { border-left: none; }
-        .results-table tr td:last-child, .results-table tr th:last-child { border-right: none; }
-        .results-table tr:last-child td { border-bottom: none; }
-
-        
-        .results-table th {
-             padding: 12px;
-        }
-
-        .results-table th.center-align, .results-table td.center-align {
-            text-align: center;
-        }
-
-        .results-table thead {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
-            color: var(--clean);
-        }
-
-        .results-table tbody tr {
-            background-color: var(--clean);
-        }
-
-        .results-table tbody tr:hover {
-            background-color: var(--bg-dark);
-        }
-
-        .results-table th.sortable {
-            cursor: pointer;
-            position: relative;
-            user-select: none;
-        }
-
-        .results-table th.sortable .sort-icon::after {
-            content: ' \25B2\25BC'; /* Up/Down arrows */
-            font-size: 0.8em;
-            color: var(--bg-dark);
-            opacity: 0.5;
-        }
-
-        .results-table th.sortable.asc .sort-icon::after {
-            content: ' \25B2'; /* Up arrow */
-            opacity: 1;
-            color: var(--clean);
-        }
-
-        .results-table th.sortable.desc .sort-icon::after {
-            content: ' \25BC'; /* Down arrow */
-            opacity: 1;
-            color: var(--clean);
-        }
-        
-        /* --- สไตล์ปุ่มต่างๆ --- */
-        .btn {
-            padding: 10px 20px;
-            font-family: 'Kanit', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            text-align: center;
-            color: var(--clean);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .btn-search {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
-            border: 2px solid var(--frame);
-            box-shadow: 0 4px 10px rgba(124, 144, 82, 0.3);
-            color: var(--clean);
-            flex-grow: 0;
-            flex-shrink: 0;
-            padding: 0 30px;
-            border-radius: 30px;
-        }
-
-        .btn-search:hover {
-            animation: sparkly-glow 2s ease-in-out infinite;
-            transform: translateY(-2px) scale(1.05);
-        }
-        
-        .btn-save {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
-            border: 2px solid var(--frame);
-            box-shadow: 0 4px 10px rgba(124, 144, 82, 0.3);
-            padding: 12px 16px;
-            width: 100%;
-            max-width: 288px;
-            border-radius: 12px;
-        }
-
-        .btn-cancel {
-            background: var(--bg-dark);
-            border: 2px solid var(--frame);
-            color: var(--text);
-            border-radius: 12px;
-        }
-        
-        .btn-edit {
-            background-color: var(--orange-warning);
-        }
-        
-        .btn-delete {
-            background-color: var(--red-danger);
-        }
-        
-        .btn-view {
-            background-color: var(--accent);
-            padding: 5px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-        .btn-view svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--clean);
-        }
-        .btn-view-text {
-            background-color: var(--accent);
-            padding: 5px 15px;
-            font-size: 0.9rem;
-            border-radius: 5px;
-        }
-
-        .btn-copy {
-            background: var(--text);
-            border: 2px solid var(--accent);
-            color: var(--clean);
-            width: 100%;
-            margin-top: 15px;
-        }
-        .btn-copy.copied {
-            background: var(--accent);
-            border-color: var(--text);
-        }
-
-        .btn-line {
-            background-color: #06C755;
-            border-radius: 24px;
-            padding: 8px 15px;
-            text-decoration: none;
-        }
-        .btn-line svg {
-            fill: white;
-            width: 20px;
-            height: 20px;
-        }
-
-
-        /* --- Modal & Loader --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            padding: 15px;
-        }
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        #alert-modal, #confirm-modal {
-            z-index: 1001;
-        }
-
-        .modal-content {
-            background-color: var(--clean);
-            border-radius: 16px;
-            border: 2px solid var(--frame);
-            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            width: 100%;
-            max-width: 500px;
-            overflow: hidden;
-        }
-        .modal-overlay.show .modal-content {
-            transform: scale(1);
-        }
-        
-        #alert-modal .modal-content, #confirm-modal .modal-content {
-            max-width: 420px;
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--text) 100%);
-            color: var(--clean);
-            padding: 15px 24px;
-        }
-        .modal-header.error {
-             background: linear-gradient(135deg, var(--red-danger) 0%, #a51a1a 100%);
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-weight: 500;
-        }
-
-        .modal-body {
-            padding: 24px;
-        }
-
-        .modal-footer {
-            background-color: var(--bg-light);
-            padding: 15px 24px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            border-top: 1px solid var(--frame);
-        }
-
-        #admin-login-modal .modal-content {
-            max-width: 380px;
-        }
-
-        #admin-login-modal input {
-            font-family: 'Kanit', sans-serif;
-            width: 100%;
-            padding: 12px 15px;
-            font-size: 1.2rem;
-            border: none;
-            border-bottom: 2px solid var(--frame);
-            border-radius: 0;
-            text-align: center;
-            background-color: transparent;
-        }
-        #admin-login-modal input:focus {
+        input::placeholder, textarea::placeholder { color: var(--text-secondary); }
+        input:focus, select:focus, textarea:focus {
             outline: none;
-            border-bottom-color: var(--accent);
-        }
-
-        #details-modal .modal-body, #user-details-modal .modal-body, #summary-modal .modal-body {
-            text-align: left;
-        }
-        #details-modal .modal-body p, #user-details-modal .modal-body p, #summary-modal .modal-body p {
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            border-bottom: 1px solid var(--bg-dark);
-            padding-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-         #details-modal .modal-body p strong, #user-details-modal .modal-body p strong, #summary-modal .modal-body p strong {
-             color: var(--text);
-             font-weight: 500;
-             margin-right: 10px;
-         }
-
-        .highlight {
-            font-weight: 600;
-            color: var(--text);
-            background-color: var(--bg-dark);
-            padding: 2px 8px;
-            border-radius: 5px;
+            border-color: var(--focus-ring-color);
+            box-shadow: 0 0 0 2px rgba(233, 83, 132, 0.2);
         }
         
-        .tracking-link {
-            color: var(--text);
-            text-decoration: underline;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
-        .tracking-link:hover {
-            color: var(--accent);
-        }
-        .tracking-link svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
-        
-        .loader-content {
-            text-align: center;
-            color: var(--clean);
-        }
+        #status-overlay { transition: opacity 0.3s ease-in-out; }
 
-        #loader {
-            border: 8px solid rgba(245, 245, 245, 0.3);
-            border-top: 8px solid var(--clean);
+        .spinner {
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px auto;
+            padding: 1.1px;
+            background: conic-gradient(#0000 10%, var(--accent-color)) content-box;
+            -webkit-mask: repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+                          radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 calc(100% - 8px));
+            -webkit-mask-composite: destination-in;
+            mask-composite: intersect;
+            animation: spinner-d5527z 1s infinite steps(10);
         }
-        #loader-text {
-            font-size: 1.2rem;
-            animation: sparkle 1.5s infinite;
-        }
+        @keyframes spinner-d5527z { to { transform: rotate(1turn); } }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .checkmark__circle { stroke: var(--status-success); }
+        .checkmark__check { stroke: var(--status-success); }
+        .status-success-panel {
+              background: rgba(255, 204, 90, 0.15);
+              backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+              border: 1px solid rgba(255, 204, 90, 0.3);
+              color: var(--text-primary);
         }
-        @keyframes sparkle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+        
+        /* Print Preview */
+        .preview-a6-page {
+            width: 10.5cm;
+            height: 14.8cm;
+            background-image: url('https://img2.pic.in.th/pic/Untitled-4445ef82b7784436dc.png');
+            background-size: 97%;
+            background-color : white;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            padding: 0.2cm;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            font-family: 'Kanit', sans-serif;
+            margin-bottom: 1.2cm;
         }
+        .preview-top-section { padding-top: 2cm; padding-left:0.5cm; padding-right: 0.5cm; padding-bottom: 0.5cm; color: #651c70; flex-shrink: 0; min-height: 6.5cm; position: relative; }
+        .preview-print-date { position: absolute; top: 0.1cm; text-align: right; right: 1.8cm; font-size: 6pt; font-weight: bold; white-space: nowrap; color: #2b5b45; }
+        .preview-order-sequence { position: absolute; top: 0.4cm; text-align: right; right: 1.8cm; font-size: 6pt; font-weight: bold; white-space: nowrap; color: #2b5b45; }
+        .preview-sender-phone { position: absolute; top: 1.8cm; left: 75%; text-align: center; transform: translateX(-75%); font-size: 14pt; font-weight: bold; white-space: nowrap; color: #a20100; }
+        .preview-recipient-name { position: absolute; top: 2.6cm; left: 2cm; font-size: 14pt; font-weight: bold; white-space: nowrap; color: #2b5b45; }
+        .preview-recipient-address { position: absolute; top: 3.6cm; left: 2cm; font-size: 10pt; line-height: 1.4; max-width: 6cm; color: #5f4734; }
+        .preview-bottom-section { padding: 1.8cm 0.5cm 0.5cm 0.5cm; background-color: transparent; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
+        .preview-bottom-section h4 { font-weight: bold; margin-bottom: 0.05cm; text-shadow: 0 0 3px white; font-size: 11pt; color: #5f4734; }
+        .preview-order-details { font-size: 8pt; font-weight: bold; text-shadow: 0 0 2px white; margin-bottom: 0.0cm; white-space: nowrap; color: #ff0000; }
+        .preview-order-details span:first-child { margin-right: 0.5cm; }
+        .preview-recipient-info { text-align: left; margin-bottom: 0.05cm; color: #5f4734; font-size: 8pt; }
+        .preview-recipient-info p { margin: 0; font-size: 8pt; text-shadow: 0 0 3px white; display: flex; justify-content: space-between; flex-wrap: nowrap; overflow: hidden; }
+        .preview-items-table { width: 100%; border-collapse: collapse; }
+        .preview-items-table th, .preview-items-table td { border: 0.5px solid #ddd; padding: 3px; text-align: left; font-size: 8pt; text-shadow: 0 0 2px white; white-space: nowrap; color: blue; }
+        .preview-items-table th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+        .preview-items-table td:last-child { text-align: center; }
+        .preview-item-row-1 td { color: red; }
+        .preview-item-row-2 td { color: green; }
+        .preview-item-row-3 td { color: purple; }
+        .preview-item-row-4 td { color: black; }
+        .preview-item-row-5 td { color: red; }
+        .preview-total-summary { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 0.2cm; text-shadow: 0 0 4px white, 0 0 4px white; white-space: nowrap; color: #ff0801; }
 
-        @keyframes sparkly-glow {
-            0% { box-shadow: 0 0 5px var(--frame), 0 0 10px var(--accent), 0 0 15px var(--frame); }
-            50% { box-shadow: 0 0 10px var(--accent), 0 0 20px var(--frame), 0 0 25px var(--accent); }
-            100% { box-shadow: 0 0 5px var(--frame), 0 0 10px var(--accent), 0 0 15px var(--frame); }
-        }
-
-        /* --- Utility Classes --- */
-        .hidden {
-            display: none !important;
-        }
-
-        /* --- Responsive Design --- */
+        /* --- Mobile Responsive Styles --- */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
+            
+            .main-container {
+                padding: 0.5rem; 
             }
-            .container {
-                padding: 16px;
-            }
-            .main-header h1 {
+
+            .main-title {
                 font-size: 1.8rem;
             }
-            .search-form {
-                flex-direction: column;
+
+            .table-header th,
+            #data-table-body td,
+            #customer-table-body td {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+                font-size: 0.875rem;
             }
             
-            #user-results-container .results-table thead {
-                display: none;
-            }
-            #user-results-container .results-table, 
-            #user-results-container .results-table tbody, 
-            #user-results-container .results-table tr, 
-            #user-results-container .results-table td {
-                display: block;
-                width: 100%;
-            }
-            #user-results-container .results-table tr {
-                margin-bottom: 15px;
-                border: 1px solid var(--frame);
-                border-radius: 5px;
-                padding: 10px;
-            }
-            #user-results-container .results-table td {
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
-                border: none;
-                border-bottom: 1px solid var(--bg-dark);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            #user-results-container .results-table td.center-align {
-                justify-content: flex-end;
-            }
-            #user-results-container .results-table td:last-child {
-                border-bottom: none;
-            }
-            #user-results-container .results-table td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: calc(50% - 20px);
-                text-align: left;
-                font-weight: bold;
-                color: var(--text);
-            }
-            .modal-footer {
-                flex-direction: column;
-            }
-            .modal-footer .btn {
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <header class="main-header">
-            <div class="header-content">
-                <h1 id="main-title">ค้นหาเลขพัสดุศรีคเนศ เทวาลัย</h1>
-            </div>
-            <p class="search-primary-instruction">ติดตามการขนส่งองค์เทพและวัตถุมงคล ศรีคเนศ เทวาลัย ตามกำหนดเวลาที่แจ้งไว้</p>
-        </header>
-
-        <div id="admin-icon-wrapper" title="สำหรับผู้ดูแลระบบ">
-            <svg id="admin-icon-person" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <svg id="admin-icon-home" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        </div>
-
-        <!-- ========== หน้าค้นหาข้อมูล (สำหรับผู้ใช้ทั่วไป) ========== -->
-        <div id="search-view">
-            <form class="search-form" id="search-form">
-                <input type="text" id="search-input" class="search-input" placeholder="ค้นหาด้วย ชื่อ หรือ เบอร์โทรศัพท์...">
-                <button type="submit" class="btn btn-search">ค้นหา</button>
-            </form>
-            <div class="search-secondary-instruction">
-                <p>ค้นหาข้อมูลเพียง <span class="search-hint">กรอกชื่อ หรือเบอร์โทรศัพท์</span> ตำแหน่ง 4 ตัวท้าย<br>หากค้นหาไม่พบ ให้ติดต่อสอบถามเพิ่มเติมทางไลน์</p>
-                <div class="contact-info">
-                    Facebook : ศรีคเนศ Srikanett | Line : @sriganett99 
-                    <a href="https://lin.ee/USKyQQg" target="_blank" class="btn btn-line">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        เพิ่มเพื่อน
-                    </a>
-                </div>
-            </div>
-            <div id="user-results-container" class="results-table-wrapper">
-                 <!-- ผลการค้นหาของผู้ใช้จะแสดงที่นี่ -->
-            </div>
-        </div>
-
-        <!-- ========== หน้าจัดการข้อมูล (สำหรับแอดมิน) ========== -->
-        <div id="admin-view" class="hidden">
-            <div class="admin-header">
-                <h2>จัดการข้อมูลการจัดส่ง</h2>
-                <div class="tool-icons">
-                    <button id="toggle-download-btn" class="tool-icon" title="ดาวน์โหลดข้อมูล">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+    <div class="main-container">
+        <div id="app" class="container mx-auto w-full max-w-4xl relative">
+            <h1 class="main-title text-3xl md:text-5xl font-bold text-center mb-6">ระบบจัดการข้อมูล ศรีคเนศ เทวาลัย</h1>
+            
+            <div class="flex justify-center mb-4">
+                <div class="glass-panel p-1 flex space-x-1 rounded-full">
+                    <button id="tab-orders" class="tab-btn active px-6 py-2 rounded-full font-semibold flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 tab-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 13.5A2.5 2.5 0 013 11V6a2.5 2.5 0 015 0v5a2.5 2.5 0 01-2.5 2.5zM15 11V6a2.5 2.5 0 00-5 0v5a2.5 2.5 0 005 0z"/><path d="M17 6v5a5 5 0 01-10 0V6H5a3 3 0 000 6h.5a.5.5 0 010 1H5a5 5 0 000 10h10a5 5 0 000-10h-.5a.5.5 0 010-1H15a3 3 0 000-6h-2z"/></svg>
+                        <span>จัดการข้อมูลสั่งซื้อ</span>
                     </button>
-                    <button id="toggle-upload-btn" class="tool-icon" title="เพิ่มข้อมูลเป็นชุด">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                    <button id="tab-customers" class="tab-btn px-6 py-2 rounded-full font-semibold flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 tab-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0110 9c-1.55 0-2.94.7-3.83 1.67a6.97 6.97 0 00-1.5 4.33c0 .34.024.673.07 1h7.86zM17 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>จัดการข้อมูลลูกค้า</span>
                     </button>
                 </div>
             </div>
 
-            <div id="data-export-section" class="data-export-section hidden">
-                 <h3>ดาวน์โหลดข้อมูลเป็น Excel</h3>
-                 <div class="export-filters">
-                     <div class="form-group">
-                         <label for="filter-start-date">ตั้งแต่วันที่</label>
-                         <input type="date" id="filter-start-date">
-                     </div>
-                     <div class="form-group">
-                         <label for="filter-end-date">ถึงวันที่</label>
-                         <input type="date" id="filter-end-date">
-                     </div>
-                     <div class="form-group full-width">
-                         <label for="filter-carrier">บริษัทขนส่ง</label>
-                         <select id="filter-carrier">
-                            <option value="">-- ทุกบริษัท --</option>
-                            <option value="KEX(Kerry)">KEX(Kerry)</option>
-                            <option value="ไปรษณีย์ไทย">ไปรษณีย์ไทย</option>
-                            <option value="Flash Express">Flash Express</option>
-                            <option value="นิ่มเอ็กซ์เพรส">นิ่มเอ็กซ์เพรส</option>
-                            <option value="J&T">J&T</option>
-                         </select>
-                     </div>
-                 </div>
-                 <button id="download-data-btn" class="btn btn-save">ดาวน์โหลดข้อมูล</button>
+            <!-- Order Management Content -->
+            <div id="orders-content">
+                <div class="glass-panel p-4 md:p-8 flex flex-col max-h-[85vh]">
+                       <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 flex-shrink-0">
+                            <div class="flex flex-wrap items-center gap-2 bg-black/20 p-2 rounded-xl">
+                                <label for="sheet-selector" class="text-sm font-semibold shrink-0">เลือกชีต:</label>
+                                <select id="sheet-selector" class="p-2"></select>
+                                <button id="manage-sheets-btn" class="btn btn-secondary p-2" title="จัดการชีต">
+                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734-2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0 2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106A1.532 1.532 0 0111.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+                                </button>
+                            </div>
+                            <div class="flex-wrap justify-center gap-2 flex">
+                                <button id="add-new-btn" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                                    <span>เพิ่มข้อมูลใหม่</span>
+                                </button>
+                                <button id="print-selected-btn" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
+                                    <span>พิมพ์ฉลากที่เลือก</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-y-auto flex-grow">
+                            <div class="overflow-x-auto rounded-xl">
+                                <table class="w-full text-base text-left">
+                                    <thead class="text-sm uppercase table-header">
+                                        <tr>
+                                            <th scope="col" class="p-2 w-[50px]">
+                                                <input type="checkbox" id="select-all-checkbox" class="w-4 h-4 rounded focus:ring-offset-0 focus:ring-2" style="background-color: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); --tw-ring-color: var(--focus-ring-color);">
+                                            </th>
+                                            <th scope="col" class="px-2 py-4 w-[10%]">ลำดับ</th>
+                                            <th scope="col" class="px-2 py-4 w-[25%]">ชื่อ</th>
+                                            <th scope="col" class="px-2 py-4 w-[30%] hidden md:table-cell">ที่อยู่</th>
+                                            <th scope="col" class="px-2 py-4 w-[20%] hidden md:table-cell">เบอร์โทร</th>
+                                            <th scope="col" class="px-2 py-4 w-[15%] text-center">จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="data-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                </div>
             </div>
 
-            <div id="batch-upload-section" class="batch-upload-section hidden">
-                <h3>เพิ่มข้อมูลเป็นชุด (จาก Excel)</h3>
-                <div class="batch-upload-controls">
-                    <button id="download-template-btn" class="btn btn-cancel">ดาวน์โหลดเทมเพลต</button>
-                    <label for="excel-upload" id="excel-upload-label" class="btn btn-edit">เลือกไฟล์ Excel</label>
-                    <input type="file" id="excel-upload" accept=".xlsx, .xls">
-                    <button id="upload-btn" class="btn btn-save hidden">อัปโหลดและบันทึก</button>
+            <!-- Customer Management Content -->
+            <div id="customers-content" class="hidden">
+                 <div class="glass-panel p-4 md:p-8 flex flex-col max-h-[85vh]">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 flex-shrink-0">
+                            <div class="md:col-span-1">
+                                <input type="text" id="customer-search" class="w-full p-2" placeholder="ค้นหาจากชื่อ หรือเบอร์โทร...">
+                            </div>
+                            <div class="md:col-span-2 flex flex-wrap justify-end gap-2">
+                                <button id="add-customer-btn" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 11a1 1 0 100-2h-1v-1a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1z" /></svg>
+                                    <span>เพิ่มลูกค้าใหม่</span>
+                                </button>
+                                <button id="check-duplicates-btn" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                                    <span>ตรวจสอบข้อมูลซ้ำ</span>
+                                </button>
+                                <div class="relative inline-block text-left">
+                                    <div>
+                                        <button type="button" class="btn btn-secondary inline-flex items-center justify-center px-4 py-2" id="menu-button" aria-expanded="true" aria-haspopup="true">
+                                            นำเข้า / ส่งออก
+                                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                        </button>
+                                    </div>
+                                    <div id="import-export-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-xl glass-panel p-1 hidden z-10" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                        <div role="none">
+                                            <a href="#" id="import-excel-btn" class="text-white/80 block px-4 py-2 text-sm hover:bg-white/10 rounded-lg" role="menuitem" tabindex="-1">นำเข้าจาก Excel</a>
+                                            <a href="#" id="export-excel-btn" class="text-white/80 block px-4 py-2 text-sm hover:bg-white/10 rounded-lg" role="menuitem" tabindex="-1">ส่งออกเป็น Excel</a>
+                                            <a href="#" id="download-template-btn" class="text-white/80 block px-4 py-2 text-sm hover:bg-white/10 rounded-lg" role="menuitem" tabindex="-1">ดาวน์โหลดเทมเพลต</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       <div class="overflow-y-auto flex-grow">
+                            <div class="overflow-x-auto rounded-xl">
+                                <table class="w-full text-base text-left">
+                                    <thead class="text-sm uppercase table-header">
+                                        <tr>
+                                            <th scope="col" class="px-2 py-4 w-[10%]">ID</th>
+                                            <th scope="col" class="px-2 py-4 w-[25%]">ชื่อ</th>
+                                            <th scope="col" class="px-2 py-4 w-[30%] hidden md:table-cell">ที่อยู่</th>
+                                            <th scope="col" class="px-2 py-4 w-[20%] hidden md:table-cell">เบอร์โทร</th>
+                                            <th scope="col" class="px-2 py-4 w-[15%] text-center">จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="customer-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
                 </div>
-                <p id="file-name" style="margin-top: 10px;"></p>
             </div>
+        </div>
+    </div>
 
-            <form id="admin-form">
-                <input type="hidden" id="form-id">
-                <div class="form-group">
-                    <label for="name">ชื่อ-สกุล<span class="required-star">*</span></label>
-                    <input type="text" id="name" required>
+    <!-- MODALS & OVERLAYS -->
+    <div id="view-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-lg mx-auto">
+            <h3 class="text-2xl font-bold mb-4 border-b-2 border-[rgba(255,255,255,0.2)] pb-2 text-primary">รายละเอียดข้อมูลสั่งซื้อ</h3>
+            <div id="view-modal-content" class="space-y-4"></div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button id="copy-btn" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM4 11a1 1 0 100 2h4a1 1 0 100-2H4z" /></svg>
+                    <span>คัดลอก</span>
+                </button>
+                <button onclick="closeModal('view-modal')" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    <span>ปิด</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="edit-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-2xl mx-auto flex flex-col max-h-[90vh]">
+            <h3 id="edit-modal-title" class="text-2xl font-bold mb-4 border-b-2 border-[rgba(255,255,255,0.2)] pb-2 flex-shrink-0 text-primary">จัดการข้อมูลสั่งซื้อ</h3>
+            <form id="edit-form" class="flex flex-col flex-grow overflow-hidden">
+                <div class="flex-grow overflow-y-auto pr-2 space-y-4">
+                    <div>
+                        <label for="paste-data-input-order" class="block mb-1 font-semibold">วางข้อมูลทั้งหมดที่นี่</label>
+                        <textarea id="paste-data-input-order" rows="4" class="w-full p-3" placeholder="วางข้อความที่มีชื่อ ที่อยู่ และเบอร์โทร..."></textarea>
+                        <button type="button" id="parse-data-btn-order" class="btn btn-secondary mt-2 w-full">แยกข้อมูล</button>
+                    </div>
+                    <hr class="border-white/20 my-4">
+
+                    <input type="hidden" id="edit-id">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="edit-name" class="block mb-1 font-semibold">ชื่อ</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="edit-name" class="w-full p-3">
+                                <button type="button" id="search-customer-btn" class="btn btn-secondary px-3 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div><label for="edit-phone" class="block mb-1 font-semibold">เบอร์โทร</label><input type="text" id="edit-phone" class="w-full p-3"></div>
+                    </div>
+                    <div><label for="edit-address" class="block mb-1 font-semibold">ที่อยู่</label><textarea id="edit-address" rows="3" class="w-full p-3"></textarea></div>
+                    <h4 class="font-bold text-lg pt-2 text-primary">รายการบูชา</h4>
+                    <div id="edit-items-container" class="space-y-2"></div>
                 </div>
-                <div class="form-group">
-                    <label for="phone">เบอร์โทรศัพท์<span class="required-star">*</span></label>
-                    <input type="tel" id="phone" required maxlength="10" pattern="\d*">
-                </div>
-                <div class="form-group">
-                    <label for="tracking-number">เลขพัสดุ<span class="required-star">*</span></label>
-                    <input type="text" id="tracking-number" required>
-                </div>
-                 <div class="form-group">
-                    <label for="shipping-date">วันที่ส่ง<span class="required-star">*</span></label>
-                    <input type="date" id="shipping-date" required>
-                </div>
-                <div class="form-group">
-                    <label for="carrier">บริษัทขนส่ง<span class="required-star">*</span></label>
-                    <select id="carrier" required>
-                        <option value="">-- เลือกบริษัทขนส่ง --</option>
-                        <option value="KEX(Kerry)">KEX(Kerry)</option>
-                        <option value="ไปรษณีย์ไทย">ไปรษณีย์ไทย</option>
-                        <option value="Flash Express">Flash Express</option>
-                        <option value="นิ่มเอ็กซ์เพรส">นิ่มเอ็กซ์เพรส</option>
-                        <option value="J&T">J&T</option>
-                        <option value="อื่นๆ">อื่นๆ...</option>
-                    </select>
-                    <div id="carrier-other-wrapper" class="hidden">
-                         <input type="text" id="carrier-other" placeholder="ระบุชื่อบริษัทขนส่ง">
+                <div class="flex-shrink-0 pt-4">
+                    <div class="text-right font-bold text-xl text-primary">ยอดรวม: <span id="edit-total">0</span> บาท</div>
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" onclick="closeModal('edit-modal')" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.75 7.75a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z" clip-rule="evenodd" /></svg>
+                            <span>ยกเลิก</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v11A1.5 1.5 0 002.5 17h15a1.5 1.5 0 001.5-1.5v-11A1.5 1.5 0 0017.5 3h-15zM10 13a.75.75 0 01-.75-.75V8.75a.75.75 0 011.5 0v3.5A.75.75 0 0110 13zM6 5a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" /></svg>
+                            <span>บันทึกข้อมูล</span>
+                        </button>
                     </div>
                 </div>
-                 <div class="form-group">
-                    <label for="status">สถานะการขนส่ง</label>
-                    <select id="status">
-                        <option value="เตรียมจัดส่ง">เตรียมจัดส่ง</option>
-                        <option value="อยู่ระหว่างจัดส่ง">อยู่ระหว่างจัดส่ง</option>
-                        <option value="จัดส่งสำเร็จ">จัดส่งสำเร็จ</option>
-                        <option value="พัสดุตีกลับ">พัสดุตีกลับ</option>
-                    </select>
+            </form>
+        </div>
+    </div>
+    <div id="customer-view-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-lg mx-auto">
+            <h3 class="text-2xl font-bold mb-4 border-b-2 border-[rgba(255,255,255,0.2)] pb-2 text-primary">รายละเอียดลูกค้า</h3>
+            <div id="customer-view-modal-content" class="space-y-4"></div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button id="customer-copy-btn" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM4 11a1 1 0 100 2h4a1 1 0 100-2H4z" /></svg>
+                    <span>คัดลอก</span>
+                </button>
+                <button onclick="closeModal('customer-view-modal')" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    <span>ปิด</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="customer-edit-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-lg mx-auto">
+            <h3 id="customer-edit-modal-title" class="text-2xl font-bold mb-4 border-b-2 border-[rgba(255,255,255,0.2)] pb-2 text-primary">จัดการข้อมูลลูกค้า</h3>
+            <form id="customer-edit-form" class="space-y-4">
+                 <div>
+                    <label for="paste-data-input-customer" class="block mb-1 font-semibold">วางข้อมูลทั้งหมดที่นี่</label>
+                    <textarea id="paste-data-input-customer" rows="4" class="w-full p-3" placeholder="วางข้อความที่มีชื่อ ที่อยู่ และเบอร์โทร..."></textarea>
+                    <button type="button" id="parse-data-btn-customer" class="btn btn-secondary mt-2 w-full">แยกข้อมูล</button>
                 </div>
-                <div class="form-group full-width">
-                    <label for="notes">หมายเหตุ</label>
-                    <textarea id="notes" rows="2" placeholder="เช่น แจ้งเตือนเพิ่มเติม..."></textarea>
-                </div>
-                <div class="form-buttons">
-                    <button type="button" id="btn-cancel-edit" class="btn btn-cancel">ยกเลิก</button>
-                    <button type="submit" class="btn btn-save">บันทึกข้อมูล</button>
+                <hr class="border-white/20 my-4">
+
+                <input type="hidden" id="customer-edit-id">
+                <div><label for="customer-edit-name" class="block mb-1 font-semibold">ชื่อ</label><input type="text" id="customer-edit-name" class="w-full p-3" required></div>
+                <div><label for="customer-edit-address" class="block mb-1 font-semibold">ที่อยู่</label><textarea id="customer-edit-address" rows="3" class="w-full p-3"></textarea></div>
+                <div><label for="customer-edit-phone" class="block mb-1 font-semibold">เบอร์โทร</label><input type="text" id="customer-edit-phone" class="w-full p-3"></div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('customer-edit-modal')" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.75 7.75a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z" clip-rule="evenodd" /></svg>
+                        <span>ยกเลิก</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 3A1.5 1.5 0 001 4.5v11A1.5 1.5 0 002.5 17h15a1.5 1.5 0 001.5-1.5v-11A1.5 1.5 0 0017.5 3h-15zM10 13a.75.75 0 01-.75-.75V8.75a.75.75 0 011.5 0v3.5A.75.75 0 0110 13zM6 5a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" /></svg>
+                        <span>บันทึก</span>
+                    </button>
                 </div>
             </form>
-            
-            <div class="results-table-wrapper">
-                <table id="admin-table" class="results-table">
-                    <thead>
+        </div>
+    </div>
+    <div id="duplicates-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-3xl mx-auto">
+            <h3 class="text-2xl font-bold mb-4 text-primary">จัดการข้อมูลที่อาจซ้ำซ้อน</h3>
+            <div id="duplicates-modal-content" class="space-y-4 max-h-[60vh] overflow-y-auto"></div>
+            <div class="mt-6 flex justify-between items-center">
+                <button id="delete-selected-duplicates-btn" class="btn bg-[var(--status-error)] text-white hover:bg-red-700 px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.046a.75.75 0 01.542.115l.078.078a.75.75 0 001.06 0l.078-.078a.75.75 0 01.542-.115l.149.046a.75.75 0 10.23-1.482A41.03 41.03 0 006 4.193V3.75A1.25 1.25 0 017.25 2.5h5.5A1.25 1.25 0 0114 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.046a.75.75 0 01.542.115l.078.078a.75.75 0 001.06 0l.078-.078a.75.75 0 01.542-.115l.149.046a.75.75 0 10.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 8a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5A.75.75 0 0110 8z" clip-rule="evenodd" /></svg>
+                    <span>ลบรายการที่เลือก</span>
+                </button>
+                <button onclick="closeModal('duplicates-modal')" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    <span>ปิด</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="customer-search-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-3xl mx-auto flex flex-col max-h-[85vh]">
+            <h3 class="text-2xl font-bold mb-4 flex-shrink-0 text-primary">ค้นหาและเลือกลูกค้า</h3>
+            <input type="text" id="order-customer-search-input" class="w-full p-2 mb-4 flex-shrink-0" placeholder="ค้นหาด้วยชื่อ หรือเบอร์โทร...">
+            <div class="overflow-y-auto flex-grow rounded-xl">
+                <table class="w-full text-sm text-left table-fixed">
+                    <thead class="text-xs uppercase table-header">
                         <tr>
-                            <th>ชื่อ</th>
-                            <th class="center-align">เบอร์โทร</th>
-                            <th class="sortable" data-sort-key="วันที่ส่ง">วันที่ส่ง <span class="sort-icon"></span></th>
-                            <th class="sortable" data-sort-key="หมายเหต">หมายเหตุ <span class="sort-icon"></span></th>
-                            <th class="center-align">จัดการ</th>
+                            <th class="px-4 py-3 w-[30%]">ชื่อ</th><th class="px-4 py-3 w-[20%]">เบอร์โทร</th><th class="px-4 py-3 w-[40%]">ที่อยู่</th><th class="px-4 py-3 w-[10%] text-center">เลือก</th>
                         </tr>
                     </thead>
-                    <tbody id="admin-table-body">
-                        <!-- ข้อมูลจะถูกโหลดมาที่นี่ -->
-                    </tbody>
+                    <tbody id="customer-search-table-body"></tbody>
                 </table>
             </div>
-        </div>
-    </div>
-    
-    <!-- ========== Modals (Popups) ========== -->
-    <div id="loader-overlay" class="modal-overlay">
-        <div class="loader-content">
-            <div id="loader"></div>
-            <p id="loader-text"></p>
-        </div>
-    </div>
-
-    <div id="alert-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="alert-modal-header" class="modal-header">
-                <h3 id="alert-modal-title"></h3>
-            </div>
-            <div class="modal-body">
-                <p id="alert-modal-message" style="text-align: center; border: none;"></p>
-            </div>
-            <div class="modal-footer">
-                <button id="alert-modal-close" class="btn btn-search">ตกลง</button>
+            <div class="mt-6 flex justify-end gap-3 flex-shrink-0">
+                <button type="button" onclick="closeModal('customer-search-modal')" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    <span>ปิด</span>
+                </button>
             </div>
         </div>
     </div>
-
-    <div id="confirm-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="confirm-modal-header" class="modal-header error">
-                <h3 id="confirm-modal-title">ยืนยันการลบ</h3>
+    <!-- Sheet Management Modal -->
+    <div id="sheet-management-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-lg mx-auto flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-2xl font-bold text-primary">จัดการชีต</h3>
+                <button onclick="closeModal('sheet-management-modal')" class="p-1 rounded-full text-white hover:bg-white/20">&times;</button>
             </div>
-            <div class="modal-body">
-                <p id="confirm-modal-message" style="text-align: center; border: none;"></p>
-            </div>
-            <div class="modal-footer">
-                <button id="confirm-cancel-btn" class="btn btn-cancel">ยกเลิก</button>
-                <button id="confirm-delete-btn" class="btn btn-delete">ยืนยันการลบ</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="admin-login-modal" class="modal-overlay">
-         <div class="modal-content">
-            <div class="modal-header"><h3>สำหรับผู้ดูแลระบบ</h3></div>
-            <form id="admin-login-form">
-                <div class="modal-body">
-                    <input type="password" id="admin-password" placeholder="กรุณากรอกรหัสผ่าน" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-save">เข้าสู่ระบบ</button>
-                </div>
-             </form>
-         </div>
-    </div>
-
-    <div id="details-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header"><h3>รายละเอียดการจัดส่ง</h3></div>
-            <div class="modal-body" id="details-modal-body"></div>
-            <div class="modal-footer" id="details-modal-footer"></div>
-        </div>
-    </div>
-
-    <div id="user-details-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header"><h3>ข้อมูลการจัดส่งของคุณ</h3></div>
-            <div class="modal-body" id="user-details-modal-body"></div>
-            <div class="modal-footer">
-                 <button id="user-modal-close-btn" class="btn btn-cancel">ปิด</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="summary-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="summary-modal-header" class="modal-header">
-                <h3 id="summary-modal-title"></h3>
-            </div>
-            <div class="modal-body" id="summary-modal-body">
-                <!-- Summary data will be injected here -->
-            </div>
-            <div class="modal-footer">
-                <button id="summary-modal-close" class="btn btn-search">ตกลง</button>
-            </div>
-        </div>
-    </div>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- ค่าคงที่และตัวแปร ---
-            const API_URL = 'https://script.google.com/macros/s/AKfycbwjq-YftUHHqO3rFfx35U2zpWzJxjQLExz-1T4qk-52eqrdVT5GnOa7RJCSTH_wlxJF/exec';
-            const ADMIN_PASSWORD = '882882';
-            let currentRecordIdForModal = null;
-            let userSearchResults = [];
-            let adminDataCache = []; // Cache for admin data
-            let sortState = { key: 'ID', order: 'desc' };
-            let excelData = [];
-
-            // --- DOM Elements ---
-            const mainTitle = document.getElementById('main-title');
-            const searchView = document.getElementById('search-view');
-            const adminView = document.getElementById('admin-view');
-            const searchForm = document.getElementById('search-form');
-            const searchInput = document.getElementById('search-input');
-            const userResultsContainer = document.getElementById('user-results-container');
-            const adminIconWrapper = document.getElementById('admin-icon-wrapper');
-            const adminIconPerson = document.getElementById('admin-icon-person');
-            const adminIconHome = document.getElementById('admin-icon-home');
-            const adminForm = document.getElementById('admin-form');
-            const adminTableBody = document.getElementById('admin-table-body');
-            const adminTableHeader = document.querySelector('#admin-table thead');
-            
-            // Batch Upload & Download Elements
-            const toggleUploadBtn = document.getElementById('toggle-upload-btn');
-            const toggleDownloadBtn = document.getElementById('toggle-download-btn');
-            const batchUploadSection = document.getElementById('batch-upload-section');
-            const dataExportSection = document.getElementById('data-export-section');
-            const excelUploadInput = document.getElementById('excel-upload');
-            const excelUploadLabel = document.getElementById('excel-upload-label');
-            const uploadBtn = document.getElementById('upload-btn');
-            const downloadTemplateBtn = document.getElementById('download-template-btn');
-            const fileNameDisplay = document.getElementById('file-name');
-            const downloadDataBtn = document.getElementById('download-data-btn');
-            const filterStartDate = document.getElementById('filter-start-date');
-            const filterEndDate = document.getElementById('filter-end-date');
-            const filterCarrier = document.getElementById('filter-carrier');
-
-            // Modals
-            const loaderOverlay = document.getElementById('loader-overlay');
-            const loaderText = document.getElementById('loader-text');
-            const alertModal = document.getElementById('alert-modal');
-            const alertModalTitle = document.getElementById('alert-modal-title');
-            const alertModalMessage = document.getElementById('alert-modal-message');
-            const alertModalCloseBtn = document.getElementById('alert-modal-close');
-            const alertModalHeader = document.getElementById('alert-modal-header');
-            const confirmModal = document.getElementById('confirm-modal');
-            const confirmModalMessage = document.getElementById('confirm-modal-message');
-            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
-            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-            const summaryModal = document.getElementById('summary-modal');
-            const summaryModalTitle = document.getElementById('summary-modal-title');
-            const summaryModalBody = document.getElementById('summary-modal-body');
-            const summaryModalCloseBtn = document.getElementById('summary-modal-close');
-
-            const adminLoginModal = document.getElementById('admin-login-modal');
-            const adminLoginForm = document.getElementById('admin-login-form');
-            const adminPasswordInput = document.getElementById('admin-password');
-            const detailsModal = document.getElementById('details-modal');
-            const detailsModalBody = document.getElementById('details-modal-body');
-            const detailsModalFooter = document.getElementById('details-modal-footer');
-            const userDetailsModal = document.getElementById('user-details-modal');
-            const userDetailsModalBody = document.getElementById('user-details-modal-body');
-            const userModalCloseBtn = document.getElementById('user-modal-close-btn');
-            
-            // Admin form fields
-            const formId = document.getElementById('form-id');
-            const formName = document.getElementById('name');
-            const formPhone = document.getElementById('phone');
-            const formTracking = document.getElementById('tracking-number');
-            const formDate = document.getElementById('shipping-date');
-            const formCarrierSelect = document.getElementById('carrier');
-            const formCarrierOtherWrapper = document.getElementById('carrier-other-wrapper');
-            const formCarrierOtherInput = document.getElementById('carrier-other');
-            const formStatus = document.getElementById('status');
-            const formNotes = document.getElementById('notes');
-            const btnCancelEdit = document.getElementById('btn-cancel-edit');
-
-
-            // --- Functions ---
-            const toggleLoader = (show, message = '') => {
-                loaderText.innerHTML = message;
-                loaderOverlay.classList.toggle('show', show);
-            };
-            const showModal = (modalElement) => modalElement.classList.add('show');
-            const hideModal = (modalElement) => modalElement.classList.remove('show');
-
-            const showAlert = (title, message, isError = false) => {
-                alertModalTitle.textContent = title;
-                alertModalMessage.innerHTML = message;
-                alertModalHeader.classList.toggle('error', isError);
-                showModal(alertModal);
-            };
-
-            const showSummaryAlert = (title, formData) => {
-                summaryModalTitle.textContent = title;
-                summaryModalBody.innerHTML = `
-                    <p><strong>ชื่อ:</strong> <span>คุณ ${formData.ชื่อ || 'N/A'}</span></p>
-                    <p><strong>เบอร์โทรศัพท์:</strong> <span>${formatPhoneNumber(formData.เบอร์โทร)}</span></p>
-                    <p><strong>เลขพัสดุ:</strong> <span>${formData.เลขพัสดุ || 'N/A'}</span></p>
-                    <p><strong>บริษัทขนส่ง:</strong> <span>${formData['บริษัทขนส่ง'] || 'N/A'}</span></p>
-                    <p><strong>วันที่ส่ง:</strong> <span>${formatFullDateThai(formData.วันที่ส่ง)}</span></p>
-                    <p><strong>สถานะ:</strong> <span>${formData.สถานะการขนส่ง || 'N/A'}</span></p>
-                `;
-                showModal(summaryModal);
-            };
-
-            const formatFullDateThai = (dateString) => {
-                if (!dateString) return 'N/A';
-                try {
-                    const date = new Date(dateString);
-                    if (isNaN(date.getTime())) return 'N/A';
-                    return date.toLocaleDateString('th-TH', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                    });
-                } catch (e) { return 'N/A'; }
-            };
-
-            const formatPhoneNumber = (phone) => {
-                let phoneStr = String(phone || '');
-                if (phoneStr.length === 9 && !phoneStr.startsWith('0')) {
-                    phoneStr = '0' + phoneStr;
-                }
-                if (phoneStr.length === 10) {
-                    return `${phoneStr.substring(0, 3)}-${phoneStr.substring(3)}`;
-                }
-                return phoneStr;
-            };
-
-            const getCarrierName = (item) => {
-                if (!item) return 'N/A';
-                return item['บริษัทขนส่ง'] || item.ชื่อขนส่ง || 'N/A';
-            };
-
-            const getTrackingUrl = (carrier, trackingNumber) => {
-                if (!carrier || !trackingNumber) return null;
-                const carrierLower = String(carrier).toLowerCase();
-                let url = null;
-
-                if (carrierLower.includes('kerry') || carrierLower.includes('kex')) {
-                    url = `https://th.kex-express.com/th/track/?track=${trackingNumber}`;
-                } else if (carrierLower.includes('ไปรษณีย์ไทย')) {
-                    url = `https://track.thailandpost.co.th/?trackNumber=${trackingNumber}`;
-                } else if (carrierLower.includes('flash')) {
-                    url = `https://www.flashexpress.co.th/tracking/search/?se=${trackingNumber}`;
-                } else if (carrierLower.includes('j&t')) {
-                    url = `https://www.jtexpress.co.th/service/track?trackNumber=${trackingNumber}`;
-                } else if (carrierLower.includes('นิ่ม') || carrierLower.includes('nim')) {
-                    url = `https://www.nimexpress.com/web/p/tracking?i=${trackingNumber}`;
-                }
-                return url;
-            };
-            
-            // --- User Search Logic ---
-            const handleSearch = async (e) => {
-                e.preventDefault();
-                const searchTerm = searchInput.value.trim();
-                if (!searchTerm) {
-                    showAlert('ข้อมูลไม่ครบถ้วน', 'กรุณากรอกข้อมูลเพื่อค้นหาเลขพัสดุ', true);
-                    return;
-                }
-                
-                toggleLoader(true, '✨ กำลังค้นหาข้อมูล โปรดรอสักครู่... ✨');
-                userResultsContainer.innerHTML = '';
-                
-                try {
-                    const response = await fetch(`${API_URL}?action=search&term=${encodeURIComponent(searchTerm)}`);
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    const result = await response.json();
-
-                    if (result.success && result.data.length > 0) {
-                        userSearchResults = result.data;
-                        displayUserResultsTable(userSearchResults);
-                    } else {
-                        showAlert('ไม่พบข้อมูล', 'ไม่มีรายชื่อ หรือเบอร์โทรศัพท์ ในฐานข้อมูล<br>กรุณากรอกใหม่อีกครั้ง', true);
-                    }
-                } catch (error) {
-                    console.error('Search Error:', error);
-                    showAlert('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับระบบได้', true);
-                } finally {
-                    toggleLoader(false);
-                }
-            };
-
-            const displayUserResultsTable = (data) => {
-                let tableHTML = `
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>ชื่อ</th>
-                                <th>วันที่ส่ง</th>
-                                <th class="center-align">ดูข้อมูล</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                const sortedData = data.sort((a, b) => (b.ID || 0) - (a.ID || 0));
-                sortedData.forEach(item => {
-                    tableHTML += `
-                        <tr>
-                            <td data-label="ชื่อ">คุณ ${item.ชื่อ || ''}</td>
-                            <td data-label="วันที่ส่ง">${formatFullDateThai(item.วันที่ส่ง)}</td>
-                            <td data-label="ดูข้อมูล" class="center-align">
-                                <button class="btn btn-view-text" data-id="${item.ID}">ดูข้อมูล</button>
-                            </td>
-                        </tr>`;
-                });
-                tableHTML += `</tbody></table>`;
-                userResultsContainer.innerHTML = tableHTML;
-            };
-
-            const openUserDetailsModal = (id) => {
-                const item = userSearchResults.find(r => String(r.ID) === String(id));
-                if (!item) return;
-                
-                const carrierName = getCarrierName(item);
-                const trackingUrl = getTrackingUrl(carrierName, item.เลขพัสดุ);
-                const trackingHTML = trackingUrl
-                    ? `<a href="${trackingUrl}" target="_blank" class="tracking-link highlight">${item.เลขพัสดุ || 'N/A'} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8h-2V6.413l-7.793 7.794-1.414-1.414L17.585 5H13V3h8z"/></svg></a>`
-                    : `<span class="highlight">${item.เลขพัสดุ || 'N/A'}</span>`;
-
-                userDetailsModalBody.innerHTML = `
-                    <p><strong>ชื่อ:</strong> <span class="highlight">คุณ ${item.ชื่อ || 'N/A'}</span></p>
-                    <p><strong>วันที่จัดส่ง:</strong> <span>${formatFullDateThai(item.วันที่ส่ง)}</span></p>
-                    <p><strong>บริษัทขนส่ง:</strong> <span>${carrierName}</span></p>
-                    <p><strong>สถานะ:</strong> <span>${item.สถานะการขนส่ง || 'N/A'}</span></p>
-                    <p><strong>เลขพัสดุ:</strong> ${trackingHTML}</p>
-                    <button class="btn btn-copy" data-tracking="${item.เลขพัสดุ}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zM-1 7a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H-.5A.5.5 0 0 1-1 7z"/></svg>
-                        คัดลอกเลขพัสดุ
+            <div class="flex-grow overflow-y-auto pr-2 space-y-6">
+                <div class="flex items-center gap-2 pb-4 border-b border-[rgba(255,255,255,0.2)]">
+                    <button id="view-google-sheet-btn" class="btn btn-secondary w-full text-center flex items-center justify-center gap-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.665l3-3z" /><path d="M8.603 16.603a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 005.656 5.656l3-3a4 4 0 00-.225-5.865.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.665l-3 3z" /></svg>
+                        <span>ดู Google Sheet</span>
                     </button>
-                `;
-                showModal(userDetailsModal);
+                    <button id="export-workbook-btn" class="btn btn-secondary w-full text-center flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.23a.75.75 0 00-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.134V2.75z" /><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" /></svg>
+                        <span>Export ทั้งหมด</span>
+                    </button>
+                </div>
+                <!-- Import New Sheets from Excel -->
+                <div>
+                    <h4 class="font-semibold text-lg border-b border-[rgba(255,255,255,0.2)] pb-2 mb-3 text-primary">นำเข้าชีตจาก Excel</h4>
+                    <button id="import-sheets-btn" class="btn btn-secondary w-full text-center flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                        <span>เลือกไฟล์ Excel (.xlsx)</span>
+                    </button>
+                </div>
+                <!-- Create New Sheet -->
+                <div>
+                    <h4 class="font-semibold text-lg border-b border-[rgba(255,255,255,0.2)] pb-2 mb-3 text-primary">สร้างชีตใหม่ (จากแม่แบบ "Template")</h4>
+                    <form id="create-sheet-form" class="flex items-center gap-2">
+                        <input type="text" id="new-sheet-name-input" class="w-full p-2" placeholder="ตั้งชื่อชีตใหม่..." required>
+                        <button type="submit" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
+                            <span>สร้าง</span>
+                        </button>
+                    </form>
+                </div>
+                <!-- List Sheets -->
+                <div>
+                    <div class="flex justify-between items-center border-b border-[rgba(255,255,255,0.2)] pb-2 mb-3">
+                         <h4 id="sheet-list-title" class="font-semibold text-lg text-primary">ลบ / เปลี่ยนชื่อชีต (ใหม่ &rarr; เก่า)</h4>
+                         <button id="sort-sheets-btn" class="btn btn-secondary p-2" title="สลับลำดับการเรียง">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                 <path d="M5 12a1 1 0 102 0V6.414l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L5 6.414V12zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
+                             </svg>
+                         </button>
+                    </div>
+                    <div id="sheet-list-container" class="space-y-2">
+                        <!-- Sheet list will be populated here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center p-4 hidden z-[90]">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-md mx-auto">
+            <h3 id="confirm-title" class="text-2xl font-bold mb-2 text-primary">ยืนยันการกระทำ</h3>
+            <div id="confirm-html" class="my-4"></div>
+            <div id="confirm-buttons" class="mt-6 flex justify-end gap-3">
+                <button id="confirm-cancel-btn" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    <span>ยกเลิก</span>
+                </button>
+                <button id="confirm-ok-btn" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>
+                    <span>ยืนยัน</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Progress/Status Overlay -->
+    <div id="status-overlay" class="fixed inset-0 modal-backdrop flex-col items-center justify-center p-4 hidden z-[100]">
+        <div class="text-center text-white">
+            <div id="progress-indicator" class="flex items-center gap-4">
+                <div class="spinner"></div>
+                <div>
+                    <h3 id="progress-title" class="text-xl font-bold text-left">กำลังประมวลผล</h3>
+                    <p id="progress-text" class="mt-1 text-sm text-left">กรุณารอสักครู่...</p>
+                </div>
+            </div>
+        </div>
+         <div id="success-indicator" class="hidden">
+             <div class="status-success-panel glass-panel p-8 w-full max-w-sm mx-auto text-center">
+                 <svg class="w-16 h-16 mx-auto mb-4" viewBox="0 0 52 52">
+                      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                 </svg>
+                <h3 id="success-title" class="text-xl font-bold">สำเร็จ!</h3>
+                <p id="success-text" class="mt-2 text-sm">ดำเนินการเรียบร้อย</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Print Preview Modal -->
+    <div id="print-preview-modal" class="fixed inset-0 modal-backdrop flex flex-col items-center justify-center p-4 hidden z-50">
+        <div class="glass-panel p-4 sm:p-6 w-full max-w-xl mx-auto flex flex-col max-h-[95vh]">
+            <h3 class="text-2xl font-bold mb-4 border-b-2 border-[rgba(255,255,255,0.2)] pb-2 flex-shrink-0 text-primary">ตัวอย่างก่อนพิมพ์</h3>
+            <div class="flex-grow overflow-auto flex justify-center items-start bg-white/20 rounded-lg p-2 sm:p-4 my-4">
+                <div id="print-preview-content" class="w-[10.5cm] min-h-[14.8cm] scale-[0.5] sm:scale-[0.8] origin-top">
+                    <!-- Preview will be injected here -->
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 flex-shrink-0">
+                <button onclick="closeModal('print-preview-modal')" class="btn btn-secondary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    <span>ยกเลิก</span>
+                </button>
+                <button id="print-confirm-btn" class="btn btn-primary px-4 py-2 font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" /></svg>
+                    <span>พิมพ์</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="print-area" class="hidden"></div>
+    <input type="file" id="import-file-input" class="hidden" accept=".xlsx, .xls, .csv">
+    <input type="file" id="import-sheet-file-input" class="hidden" accept=".xlsx, .xls">
+</div>
+<script>
+// --- URLs ---
+const SCRIPT_URL_ORDERS = 'https://script.google.com/macros/s/AKfycbwm5ZaC2LFBrefkcaRKqz9tvATM3B0uFNx_j4AuN8uqG-b1TsuXIbW9jz9hNiqbIkANKw/exec';
+const SCRIPT_URL_CUSTOMERS = 'https://script.google.com/macros/s/AKfycbwm5ZaC2LFBrefkcaRKqz9tvATM3B0uFNx_j4AuN8uqG-b1TsuXIbW9jz9hNiqbIkANKw/exec';
+
+// --- STATE MANAGEMENT ---
+let currentView = 'orders';
+let order_currentData = [];
+let order_currentSheet = 'List';
+let order_itemToCopy = null;
+let orderDataCache = {}; // Cache for order data
+const protectedSheets = ['ข้อมูลเปลี่ยนซิม', 'Template', 'List'];
+let sheetSortOrder = 'desc'; // 'desc' for new to old, 'asc' for old to new
+let customer_currentData = [];
+let customer_allData = []; // For unfiltered data
+let customer_itemToCopy = null;
+let htmlToPrint = ''; // For print preview
+
+// --- DOM ELEMENTS ---
+const tabOrders = document.getElementById('tab-orders');
+const tabCustomers = document.getElementById('tab-customers');
+const ordersContent = document.getElementById('orders-content');
+const customersContent = document.getElementById('customers-content');
+const importExportMenu = document.getElementById('import-export-menu');
+
+// --- UI HELPER FUNCTIONS ---
+const statusOverlay = document.getElementById('status-overlay');
+const progressIndicator = document.getElementById('progress-indicator');
+const successIndicator = document.getElementById('success-indicator');
+
+function showProgress(title = 'กำลังประมวลผล', text = 'กรุณารอสักครู่...') {
+    document.getElementById('progress-title').textContent = title;
+    document.getElementById('progress-text').textContent = text;
+    progressIndicator.classList.remove('hidden');
+    successIndicator.classList.add('hidden');
+    statusOverlay.classList.remove('hidden');
+    statusOverlay.classList.add('flex');
+}
+
+function showSuccessMessage(title = 'สำเร็จ!', text = 'ดำเนินการเรียบร้อย', duration = 2000) {
+    statusOverlay.classList.remove('hidden');
+    statusOverlay.classList.add('flex');
+    progressIndicator.classList.add('hidden');
+    successIndicator.classList.remove('hidden');
+    document.getElementById('success-title').textContent = title;
+    document.getElementById('success-text').textContent = text;
+
+    setTimeout(() => {
+        statusOverlay.classList.add('hidden');
+        statusOverlay.classList.remove('flex');
+        successIndicator.classList.add('hidden');
+        progressIndicator.classList.remove('hidden');
+    }, duration);
+}
+
+
+function hideStatus() {
+    statusOverlay.classList.add('hidden');
+    statusOverlay.classList.remove('flex');
+}
+
+function showConfirmation({ title, html, confirmButtonText = 'ยืนยัน', cancelButtonText = 'ยกเลิก', showCancel = true }) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirm-modal');
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-html').innerHTML = html;
+        
+        const okBtn = document.getElementById('confirm-ok-btn');
+        const cancelBtn = document.getElementById('confirm-cancel-btn');
+        okBtn.querySelector('span').textContent = confirmButtonText;
+        cancelBtn.querySelector('span').textContent = cancelButtonText;
+        cancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
+
+        
+        const cleanupAndResolve = (value) => {
+            modal.removeEventListener('keydown', keydownHandler);
+            closeModal('confirm-modal');
+            okBtn.onclick = null; 
+            cancelBtn.onclick = null; 
+            resolve({ isConfirmed: value });
+        };
+
+        const keydownHandler = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                cleanupAndResolve(true);
+            } else if (event.key === 'Escape') {
+                cleanupAndResolve(false);
+            }
+        };
+
+        modal.addEventListener('keydown', keydownHandler);
+        okBtn.onclick = () => cleanupAndResolve(true);
+        cancelBtn.onclick = () => cleanupAndResolve(false);
+        
+        openModal('confirm-modal');
+        okBtn.focus();
+    });
+}
+
+
+function showChoice({ title, html, choices }) {
+    return new Promise(resolve => {
+        const modal = document.getElementById('confirm-modal');
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-html').innerHTML = html;
+
+        const buttonContainer = document.getElementById('confirm-buttons');
+        const originalButtonsHTML = buttonContainer.innerHTML;
+
+        buttonContainer.innerHTML = '';
+
+        choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-primary px-4 py-2 font-semibold';
+            btn.textContent = choice.text;
+            btn.onclick = () => {
+                buttonContainer.innerHTML = originalButtonsHTML;
+                closeModal('confirm-modal');
+                resolve(choice.value);
             };
-
-            const copyToClipboard = (button, text) => {
-                if (!text || button.classList.contains('copied')) return;
-
-                const originalText = button.innerHTML;
-                const dummy = document.createElement("textarea");
-                document.body.appendChild(dummy);
-                dummy.value = text;
-                dummy.select();
-                
-                try {
-                    document.execCommand("copy");
-                    button.innerHTML = 'คัดลอกแล้ว!';
-                    button.classList.add('copied');
-                    setTimeout(() => {
-                        button.innerHTML = originalText;
-                        button.classList.remove('copied');
-                    }, 2000);
-                } catch (err) {
-                    console.error('Fallback: Oops, unable to copy', err);
-                    showAlert('ผิดพลาด', 'เบราว์เซอร์ของคุณไม่รองรับการคัดลอกอัตโนมัติ', true);
-                }
-                document.body.removeChild(dummy);
-            };
-
-            // --- Admin Logic ---
-            const showAdminView = () => {
-                mainTitle.textContent = "จัดการข้อมูลการจัดส่ง";
-                searchView.classList.add('hidden');
-                adminView.classList.remove('hidden');
-                adminIconPerson.classList.add('hidden');
-                adminIconHome.classList.remove('hidden');
-                hideModal(adminLoginModal);
-                fetchAllDataForAdmin();
-            };
-
-            const switchToUserView = () => {
-                mainTitle.textContent = "ค้นหาพัสดุศรีคเนศ";
-                adminView.classList.add('hidden');
-                searchView.classList.remove('hidden');
-                adminIconPerson.classList.remove('hidden');
-                adminIconHome.classList.add('hidden');
-                searchInput.value = '';
-                userResultsContainer.innerHTML = '';
-                resetAdminForm();
-            };
-
-            const fetchAllDataForAdmin = async () => {
-                toggleLoader(true);
-                try {
-                    const response = await fetch(`${API_URL}?action=getAll`);
-                    const result = await response.json();
-                    if (result.success) {
-                        adminDataCache = result.data; // Store in cache
-                        populateAdminTable(adminDataCache);
-                    } else { throw new Error(result.message || 'Failed to get data'); }
-                } catch (error) {
-                    console.error('Fetch All Error:', error);
-                    showAlert('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลทั้งหมดได้', true);
-                } finally { toggleLoader(false); }
-            };
-
-            const populateAdminTable = (data) => {
-                adminTableBody.innerHTML = '';
-                if (!data || data.length === 0) return;
-                
-                const sortedData = [...data].sort((a, b) => {
-                    const valA = a[sortState.key] || '';
-                    const valB = b[sortState.key] || '';
-
-                    if (sortState.key === 'วันที่ส่ง') {
-                        const dateA = valA ? new Date(valA).getTime() : 0;
-                        const dateB = valB ? new Date(valB).getTime() : 0;
-                        return sortState.order === 'asc' ? dateA - dateB : dateB - dateA;
-                    }
-                    
-                    if (sortState.key === 'ID') {
-                        return (b.ID || 0) - (a.ID || 0); // Always descending for ID
-                    }
-
-                    return valA.localeCompare(valB, 'th') * (sortState.order === 'asc' ? 1 : -1);
-                });
-
-                sortedData.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.dataset.id = item.ID;
-                    row.innerHTML = `
-                        <td data-label="ชื่อ">คุณ ${item.ชื่อ || ''}</td>
-                        <td data-label="เบอร์โทร" class="center-align">${formatPhoneNumber(item.เบอร์โทร)}</td>
-                        <td data-label="วันที่ส่ง">${formatFullDateThai(item.วันที่ส่ง)}</td>
-                        <td data-label="หมายเหตุ">${item.หมายเหต || '-'}</td>
-                        <td data-label="จัดการ" class="center-align">
-                            <button class="btn btn-view" data-id="${item.ID}" title="ดูข้อมูล">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                            </button>
-                        </td>
-                    `;
-                    adminTableBody.appendChild(row);
-                });
-            };
-            
-            const resetAdminForm = () => {
-                adminForm.reset();
-                formId.value = '';
-                formCarrierOtherWrapper.classList.add('hidden');
-                formCarrierOtherInput.value = '';
-            };
-
-            const handleAdminFormSubmit = (e) => {
-                e.preventDefault();
-                
-                const requiredFields = adminForm.querySelectorAll('[required]');
-                let firstInvalidField = null;
-
-                for (const field of requiredFields) {
-                    if (!field.value.trim()) {
-                        firstInvalidField = field;
-                        break;
-                    }
-                }
-
-                if (firstInvalidField) {
-                    const label = firstInvalidField.closest('.form-group').querySelector('label').textContent.replace('*', '').trim();
-                    showAlert('ข้อมูลไม่ครบถ้วน', `กรุณากรอกข้อมูล: ${label}`, true);
-                    firstInvalidField.focus();
-                    return;
-                }
-
-                const nameValue = formName.value.trim();
-                const namePrefixes = ['คุณ', 'นาย', 'นาง', 'น.ส.', 'นางสาว', 'ด.ช.', 'ด.ญ.'];
-                if (namePrefixes.some(prefix => nameValue.toLowerCase().startsWith(prefix))) {
-                    showAlert('ข้อมูลไม่ถูกต้อง', 'กรุณากรอกชื่อโดยไม่ต้องใส่คำนำหน้า', true);
-                    formName.focus();
-                    return;
-                }
-
-                let carrierValue = formCarrierSelect.value;
-                if (carrierValue === 'อื่นๆ') {
-                    carrierValue = formCarrierOtherInput.value.trim();
-                    if (!carrierValue) {
-                        showAlert('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุชื่อบริษัทขนส่ง', true);
-                        formCarrierOtherInput.focus();
-                        return;
-                    }
-                }
-                
-                toggleLoader(true);
-                const recordId = formId.value;
-                const action = recordId ? 'edit' : 'add';
-                
-                const formData = {
-                    ID: recordId, 
-                    ชื่อ: nameValue, 
-                    เลขพัสดุ: formTracking.value,
-                    เบอร์โทร: formPhone.value, 
-                    'บริษัทขนส่ง': carrierValue, 
-                    วันที่ส่ง: formDate.value,
-                    สถานะการขนส่ง: formStatus.value, 
-                    หมายเหต: formNotes.value
-                };
-                
-                fetch(API_URL, {
-                    method: 'POST', body: JSON.stringify({ action, data: formData }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        showSummaryAlert(action === 'add' ? 'เพิ่มข้อมูลสำเร็จ!' : 'แก้ไขข้อมูลสำเร็จ!', formData);
-                        resetAdminForm();
-                        fetchAllDataForAdmin(); 
-                    } else {
-                        throw new Error(result.message || 'Operation failed');
-                    }
-                })
-                .catch(error => {
-                    console.error('Form Submit Error:', error);
-                    showAlert('เกิดข้อผิดพลาด', error.message, true);
-                    fetchAllDataForAdmin();
-                })
-                .finally(() => {
-                    toggleLoader(false);
-                });
-            };
-            
-            const openAdminDetailsModal = (id) => {
-                const item = adminDataCache.find(r => String(r.ID) === String(id));
-                if (!item) return;
-
-                currentRecordIdForModal = item.ID;
-                const carrierName = getCarrierName(item);
-                const trackingUrl = getTrackingUrl(carrierName, item.เลขพัสดุ);
-                const trackingHTML = trackingUrl
-                    ? `<a href="${trackingUrl}" target="_blank" class="tracking-link highlight">${item.เลขพัสดุ || 'N/A'} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8h-2V6.413l-7.793 7.794-1.414-1.414L17.585 5H13V3h8z"/></svg></a>`
-                    : `<span class="highlight">${item.เลขพัสดุ || 'N/A'}</span>`;
-
-                detailsModalBody.innerHTML = `
-                    <p><strong>ชื่อ:</strong> <span class="highlight">คุณ ${item.ชื่อ || 'N/A'}</span></p>
-                    <p><strong>เบอร์โทรศัพท์:</strong> <span>${formatPhoneNumber(item.เบอร์โทร)}</span></p>
-                    <p><strong>เลขพัสดุ:</strong> ${trackingHTML}</p>
-                    <p><strong>บริษัทขนส่ง:</strong> <span>${carrierName}</span></p>
-                    <p><strong>วันที่ส่ง:</strong> <span>${formatFullDateThai(item.วันที่ส่ง)}</span></p>
-                    <p><strong>สถานะ:</strong> <span>${item.สถานะการขนส่ง || 'N/A'}</span></p>
-                `;
-                detailsModalFooter.innerHTML = `
-                    <button id="modal-btn-cancel" class="btn btn-cancel">ยกเลิก</button>
-                    <button id="modal-btn-delete" class="btn btn-delete">ลบข้อมูล</button>
-                    <button id="modal-btn-edit" class="btn btn-edit">แก้ไขข้อมูล</button>
-                `;
-                showModal(detailsModal);
-            };
-
-            const deleteRecord = (id) => {
-                 const itemToDelete = adminDataCache.find(item => String(item.ID) === String(id));
-                 if (!itemToDelete) return;
-                 
-                 toggleLoader(true, '✨ กำลังลบข้อมูล... ✨');
-                 
-                 const originalCache = [...adminDataCache];
-                 adminDataCache = adminDataCache.filter(item => String(item.ID) !== String(id));
-                 populateAdminTable(adminDataCache);
-
-                 fetch(API_URL, {
-                     method: 'POST', body: JSON.stringify({ action: 'delete', data: { ID: id } }),
-                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                 })
-                 .then(response => response.json())
-                 .then(result => {
-                     if (!result.success) {
-                         throw new Error(result.message || 'Delete failed on server');
-                     }
-                     showAlert('สำเร็จ', `ข้อมูลของคุณ ${itemToDelete.ชื่อ} ถูกลบแล้ว`);
-                 })
-                 .catch(error => {
-                     console.error('Delete Error:', error);
-                     showAlert('เกิดข้อผิดพลาด', error.message, true);
-                     adminDataCache = originalCache;
-                     populateAdminTable(adminDataCache);
-                 })
-                 .finally(() => {
-                    toggleLoader(false);
-                 });
-            };
-            
-            const populateFormForEdit = (id) => {
-                const item = adminDataCache.find(r => String(r.ID) === String(id));
-                if (!item) return;
-
-                formId.value = item.ID;
-                formName.value = item.ชื่อ || '';
-                formPhone.value = item.เบอร์โทร || '';
-                formTracking.value = item.เลขพัสดุ || '';
-                formDate.value = item.วันที่ส่ง ? new Date(item.วันที่ส่ง).toISOString().split('T')[0] : '';
-                
-                const carrierValue = getCarrierName(item);
-                const carrierOptions = Array.from(formCarrierSelect.options).map(opt => opt.value);
-                if (carrierOptions.includes(carrierValue)) {
-                    formCarrierSelect.value = carrierValue;
-                    formCarrierOtherWrapper.classList.add('hidden');
-                    formCarrierOtherInput.value = '';
-                } else {
-                    formCarrierSelect.value = 'อื่นๆ';
-                    formCarrierOtherWrapper.classList.remove('hidden');
-                    formCarrierOtherInput.value = carrierValue;
-                }
-                formStatus.value = item.สถานะการขนส่ง || '';
-                formNotes.value = item.หมายเหต || '';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-
-            // --- Batch Upload & Download Logic ---
-            downloadTemplateBtn.addEventListener('click', () => {
-                const templateData = [{
-                    'ชื่อ': 'สมชาย ใจดี',
-                    'เลขพัสดุ': 'EX123456789TH',
-                    'เบอร์โทร': '0812345678',
-                    'บริษัทขนส่ง': 'ไปรษณีย์ไทย',
-                    'วันที่ส่ง': '2025-07-08',
-                    'สถานะการขนส่ง': 'เตรียมจัดส่ง',
-                    'หมายเหต': 'ระวังแตก'
-                }];
-                const worksheet = XLSX.utils.json_to_sheet(templateData);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-                XLSX.writeFile(workbook, "Srikhanet_Upload_Template.xlsx");
-            });
-
-            excelUploadInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                fileNameDisplay.textContent = file.name;
-                uploadBtn.classList.remove('hidden');
-
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const data = new Uint8Array(event.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    excelData = XLSX.utils.sheet_to_json(worksheet).filter(row => row['ชื่อ'] || row['เลขพัสดุ']);
-                };
-                reader.readAsArrayBuffer(file);
-            });
-
-            uploadBtn.addEventListener('click', () => {
-                if (excelData.length === 0) {
-                    showAlert('ไม่มีข้อมูล', 'ไม่พบข้อมูลในไฟล์ Excel หรือไฟล์อาจจะว่างเปล่า', true);
-                    return;
-                }
-
-                toggleLoader(true);
-                fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'batchAdd', data: excelData }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                })
-                .then(res => res.json())
-                .then(result => {
-                    if (result.success) {
-                        showAlert('สำเร็จ', `เพิ่มข้อมูลจำนวน ${excelData.length} รายการเรียบร้อยแล้ว`);
-                        fetchAllDataForAdmin();
-                        excelData = [];
-                        fileNameDisplay.textContent = '';
-                        uploadBtn.classList.add('hidden');
-                        excelUploadInput.value = '';
-                    } else {
-                        throw new Error(result.message || 'Batch upload failed');
-                    }
-                })
-                .catch(error => {
-                    console.error('Batch Upload Error:', error);
-                    showAlert('เกิดข้อผิดพลาด', error.message, true);
-                })
-                .finally(() => {
-                    toggleLoader(false);
-                });
-            });
-
-            downloadDataBtn.addEventListener('click', () => {
-                let filteredData = [...adminDataCache];
-
-                const startDate = filterStartDate.value ? new Date(filterStartDate.value).setHours(0,0,0,0) : null;
-                const endDate = filterEndDate.value ? new Date(filterEndDate.value).setHours(23,59,59,999) : null;
-                const carrier = filterCarrier.value;
-
-                if (startDate) {
-                    filteredData = filteredData.filter(item => item.วันที่ส่ง && new Date(item.วันที่ส่ง).getTime() >= startDate);
-                }
-                if (endDate) {
-                    filteredData = filteredData.filter(item => item.วันที่ส่ง && new Date(item.วันที่ส่ง).getTime() <= endDate);
-                }
-                if (carrier) {
-                    filteredData = filteredData.filter(item => getCarrierName(item) === carrier);
-                }
-
-                if (filteredData.length === 0) {
-                    showAlert('ไม่พบข้อมูล', 'ไม่พบข้อมูลตามเงื่อนไขที่เลือก', true);
-                    return;
-                }
-
-                const worksheet = XLSX.utils.json_to_sheet(filteredData);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Data");
-                XLSX.writeFile(workbook, "Filtered_Srikhanet_Data.xlsx");
-            });
-
-
-            // --- Event Listeners ---
-            searchForm.addEventListener('submit', handleSearch);
-            alertModalCloseBtn.addEventListener('click', () => hideModal(alertModal));
-            summaryModalCloseBtn.addEventListener('click', () => hideModal(summaryModal));
-            
-            adminIconWrapper.addEventListener('click', () => {
-                if (adminView.classList.contains('hidden')) {
-                    showModal(adminLoginModal);
-                    setTimeout(() => adminPasswordInput.focus(), 100);
-                } else {
-                    switchToUserView();
-                }
-            });
-
-            adminLoginModal.addEventListener('click', (e) => { if (e.target === adminLoginModal) hideModal(adminLoginModal); });
-            adminLoginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                if (adminPasswordInput.value === ADMIN_PASSWORD) {
-                    showAdminView();
-                } else {
-                    showAlert('รหัสผ่านไม่ถูกต้อง', 'ระบบนี้สำหรับการเข้าใช้งานของแอดมินเท่านั้น<br>กรุณากรอกรหัสผ่านให้ถูกต้อง', true);
-                    adminPasswordInput.value = '';
-                }
-            });
-            adminForm.addEventListener('submit', handleAdminFormSubmit);
-            adminTableBody.addEventListener('click', (e) => {
-                const target = e.target.closest('.btn-view');
-                if (target) openAdminDetailsModal(target.dataset.id);
-            });
-            adminTableHeader.addEventListener('click', (e) => {
-                const header = e.target.closest('th.sortable');
-                if (!header) return;
-
-                const newKey = header.dataset.sortKey;
-
-                if (sortState.key === newKey) {
-                    sortState.order = sortState.order === 'asc' ? 'desc' : 'asc';
-                } else {
-                    sortState.key = newKey;
-                    sortState.order = 'asc';
-                }
-                
-                document.querySelectorAll('#admin-table th.sortable').forEach(th => {
-                    th.classList.remove('asc', 'desc');
-                });
-                header.classList.add(sortState.order);
-
-                populateAdminTable(adminDataCache);
-            });
-            btnCancelEdit.addEventListener('click', resetAdminForm);
-            formCarrierSelect.addEventListener('change', () => {
-                formCarrierOtherWrapper.classList.toggle('hidden', formCarrierSelect.value !== 'อื่นๆ');
-            });
-
-            formPhone.addEventListener('input', (e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, '');
-            });
-
-            toggleUploadBtn.addEventListener('click', () => {
-                batchUploadSection.classList.toggle('hidden');
-                toggleUploadBtn.classList.toggle('active');
-                dataExportSection.classList.add('hidden');
-                toggleDownloadBtn.classList.remove('active');
-            });
-
-            toggleDownloadBtn.addEventListener('click', () => {
-                dataExportSection.classList.toggle('hidden');
-                toggleDownloadBtn.classList.toggle('active');
-                batchUploadSection.classList.add('hidden');
-                toggleUploadBtn.classList.remove('active');
-            });
-
-            detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) hideModal(detailsModal); });
-            detailsModalFooter.addEventListener('click', (e) => {
-                const targetId = e.target.id;
-                if (targetId === 'modal-btn-cancel') {
-                    hideModal(detailsModal);
-                } else if (targetId === 'modal-btn-delete') {
-                    const itemToDelete = adminDataCache.find(item => String(item.ID) === String(currentRecordIdForModal));
-                    if(itemToDelete) {
-                        confirmModalMessage.innerHTML = `คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของคุณ <strong>${itemToDelete.ชื่อ}</strong>?`;
-                        showModal(confirmModal);
-                    }
-                } else if (targetId === 'modal-btn-edit') {
-                    hideModal(detailsModal);
-                    populateFormForEdit(currentRecordIdForModal);
-                }
-            });
-
-            confirmCancelBtn.addEventListener('click', () => hideModal(confirmModal));
-            confirmDeleteBtn.addEventListener('click', () => {
-                hideModal(confirmModal);
-                hideModal(detailsModal);
-                deleteRecord(currentRecordIdForModal);
-            });
-
-            userResultsContainer.addEventListener('click', (e) => {
-                const viewBtn = e.target.closest('.btn-view-text');
-                if (viewBtn) openUserDetailsModal(viewBtn.dataset.id);
-            });
-            userDetailsModal.addEventListener('click', (e) => {
-                if (e.target === userDetailsModal) hideModal(userDetailsModal);
-                const copyBtn = e.target.closest('.btn-copy');
-                if(copyBtn) copyToClipboard(copyBtn, copyBtn.dataset.tracking);
-            });
-            userModalCloseBtn.addEventListener('click', () => hideModal(userDetailsModal));
+            buttonContainer.appendChild(btn);
         });
-    </script>
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn btn-secondary px-4 py-2 font-semibold';
+        cancelBtn.textContent = 'ยกเลิก';
+        cancelBtn.onclick = () => {
+            buttonContainer.innerHTML = originalButtonsHTML;
+            closeModal('confirm-modal');
+            resolve(null);
+        };
+        buttonContainer.appendChild(cancelBtn);
+        
+        openModal('confirm-modal');
+    });
+}
+
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    order_loadSheets();
+    order_loadData(order_currentSheet);
+    
+    tabOrders.addEventListener('click', () => switchView('orders'));
+    tabCustomers.addEventListener('click', () => switchView('customers'));
+    
+    document.getElementById('manage-sheets-btn').addEventListener('click', openSheetManagementModal);
+    document.getElementById('import-sheets-btn').addEventListener('click', () => document.getElementById('import-sheet-file-input').click());
+    document.getElementById('import-sheet-file-input').addEventListener('change', handleSheetImportFileSelect);
+    document.getElementById('create-sheet-form').addEventListener('submit', handleCreateNewSheet);
+    document.getElementById('sort-sheets-btn').addEventListener('click', toggleSheetSortOrder);
+    document.getElementById('view-google-sheet-btn').addEventListener('click', () => {
+        window.open('https://docs.google.com/spreadsheets/d/1BLEL60khk-mfsiZdgsGDzHQ9smDWRkDz8SFDuCkzxEg/edit', '_blank');
+    });
+    document.getElementById('export-workbook-btn').addEventListener('click', exportFullWorkbook_Orders);
+
+    document.getElementById('customer-search').addEventListener('input', handleCustomerSearch);
+    document.getElementById('add-customer-btn').addEventListener('click', () => showEditCustomerModal(null));
+    document.getElementById('customer-edit-form').addEventListener('submit', handleSaveCustomer);
+    document.getElementById('customer-copy-btn').addEventListener('click', copyCustomerData);
+
+    document.getElementById('menu-button').addEventListener('click', () => importExportMenu.classList.toggle('hidden'));
+    document.getElementById('export-excel-btn').addEventListener('click', (e) => { e.preventDefault(); exportToExcel(); });
+    document.getElementById('download-template-btn').addEventListener('click', (e) => { e.preventDefault(); downloadTemplate(); });
+    document.getElementById('import-excel-btn').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('import-file-input').click(); });
+    document.getElementById('import-file-input').addEventListener('change', handleFileImport);
+    
+    document.getElementById('check-duplicates-btn').addEventListener('click', handleCheckDuplicates);
+    
+    document.getElementById('search-customer-btn').addEventListener('click', openCustomerSearch);
+    document.getElementById('order-customer-search-input').addEventListener('input', handleOrderCustomerSearch);
+    document.getElementById('customer-search-table-body').addEventListener('click', handleSelectCustomer);
+
+    document.getElementById('print-confirm-btn').addEventListener('click', executeActualPrint);
+    
+    document.getElementById('parse-data-btn-order').addEventListener('click', () => handleParseData('order'));
+    document.getElementById('parse-data-btn-customer').addEventListener('click', () => handleParseData('customer'));
+
+
+    document.getElementById('edit-modal').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.target.matches('textarea')) {
+            event.preventDefault();
+            document.querySelector('#edit-form button[type="submit"]').click();
+        }
+    });
+    document.getElementById('customer-edit-modal').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.target.matches('textarea')) {
+            event.preventDefault();
+            document.querySelector('#customer-edit-form button[type="submit"]').click();
+        }
+    });
+});
+
+// --- VIEW SWITCHING ---
+function switchView(view) {
+    currentView = view;
+    if (view === 'orders') {
+        ordersContent.classList.remove('hidden');
+        customersContent.classList.add('hidden');
+        tabOrders.classList.add('active');
+        tabCustomers.classList.remove('active');
+    } else {
+        ordersContent.classList.add('hidden');
+        customersContent.classList.remove('hidden');
+        tabOrders.classList.remove('active');
+        tabCustomers.classList.add('active');
+        if (customer_allData.length === 0) {
+            customer_loadData();
+        }
+    }
+}
+
+// --- UTILITY & MODAL FUNCTIONS ---
+function openModal(modalId) { document.getElementById(modalId).classList.add('flex'); document.getElementById(modalId).classList.remove('hidden'); }
+function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); document.getElementById(modalId).classList.remove('flex'); }
+
+
+// ===================================================================
+// DATA PARSING
+// ===================================================================
+function handleParseData(formType) {
+    const inputId = `paste-data-input-${formType}`;
+    const text = document.getElementById(inputId).value;
+    if (!text.trim()) return;
+
+    let remainingText = text;
+    let phone = '';
+
+    // 1. Extract Phone Number - Look for prefixes and remove the whole block
+    const phoneRegex = /(?:โทร|เบอร์|Tel)\s*[:.]?\s*([\d-\s]{9,12})/;
+    const phoneMatch = remainingText.match(phoneRegex);
+    
+    if (phoneMatch && phoneMatch[1]) {
+        phone = phoneMatch[1].replace(/[-\s]/g, '');
+        remainingText = remainingText.replace(phoneMatch[0], ''); // Remove the whole "Tel: 0xx-xxx-xxxx" part
+    }
+
+    // 2. Extract Name
+    const nameRegex = /(?:คุณ|นาย|นางสาว|น\.ส\.|นาง)\s*([^\d\s]+\s+[^\d\s]+)/;
+    const nameMatch = remainingText.match(nameRegex);
+    const name = nameMatch ? nameMatch[1].trim() : '';
+    
+    if(name) {
+         remainingText = remainingText.replace(nameMatch[0], '');
+    }
+
+    // 3. The rest is the address
+    const address = remainingText.trim().replace(/^[:\s,]+|[:\s,]+$/g, '');
+
+    // 4. Populate fields
+    if (formType === 'order') {
+        document.getElementById('edit-name').value = name;
+        document.getElementById('edit-phone').value = phone;
+        document.getElementById('edit-address').value = address;
+    } else if (formType === 'customer') {
+        document.getElementById('customer-edit-name').value = name;
+        document.getElementById('customer-edit-phone').value = phone;
+        document.getElementById('customer-edit-address').value = address;
+    }
+}
+
+
+// ===================================================================
+// ORDER MANAGEMENT CODE
+// ===================================================================
+const sheetSelector = document.getElementById('sheet-selector');
+const orderTableBody = document.getElementById('data-table-body');
+const addNewBtn = document.getElementById('add-new-btn');
+const editForm = document.getElementById('edit-form');
+const copyBtn = document.getElementById('copy-btn');
+const printSelectedBtn = document.getElementById('print-selected-btn');
+const selectAllCheckbox = document.getElementById('select-all-checkbox');
+
+async function order_apiCall(action, params = {}, method = 'GET', body = null) {
+    const url = new URL(SCRIPT_URL_ORDERS);
+    url.searchParams.append('action', action);
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+    try {
+        const options = { method, redirect: 'follow' };
+        if (method === 'POST') {
+            const formData = new URLSearchParams();
+            formData.append('action', action);
+            if(body){
+                Object.keys(body).forEach(key => {
+                     formData.append(key, (typeof body[key] === 'object') ? JSON.stringify(body[key]) : body[key]);
+                });
+            }
+            options.body = formData;
+        }
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`Network response was not ok (${response.status})`);
+        
+        const responseText = await response.text();
+        try {
+            const result = JSON.parse(responseText);
+            if (result.status === 'error') throw new Error(result.message);
+            return result;
+        } catch (e) {
+            console.error("Could not parse JSON response from Order API:", responseText);
+            throw new Error("Received an invalid response from the server. Check Apps Script deployment permissions (should be accessible by 'Anyone').");
+        }
+    } catch (error) {
+        console.error('Order API Error:', error);
+        if (error.message.includes('Failed to fetch') || error instanceof TypeError) {
+            throw new Error('Load failed. This is likely a CORS issue. Ensure the Apps Script is deployed to be accessible by "Anyone".');
+        }
+        throw error;
+    }
+}
+
+// --- Sheet Management ---
+async function openSheetManagementModal() {
+    showProgress('กำลังโหลดรายชื่อชีต...');
+    try {
+        const result = await order_apiCall('getSheetNames', { for: 'orders' });
+        renderSheetList(result.data);
+        hideStatus();
+        openModal('sheet-management-modal');
+    } catch (error) {
+        showSuccessMessage('เกิดข้อผิดพลาด!', `ไม่สามารถโหลดรายชื่อชีตได้: ${error.message}`, 3000);
+    }
+}
+
+function toggleSheetSortOrder() {
+    sheetSortOrder = sheetSortOrder === 'desc' ? 'asc' : 'desc';
+    const sheetOptions = Array.from(sheetSelector.options).map(opt => opt.value);
+    renderSheetList(sheetOptions);
+}
+
+function renderSheetList(sheetNames) {
+    const container = document.getElementById('sheet-list-container');
+    const title = document.getElementById('sheet-list-title');
+    container.innerHTML = '';
+    const sortedSheets = sheetSortOrder === 'desc' ? sheetNames.slice().reverse() : sheetNames.slice();
+    title.textContent = sheetSortOrder === 'desc' ? 'ลบ / เปลี่ยนชื่อชีต (ใหม่ → เก่า)' : 'ลบ / เปลี่ยนชื่อชีต (เก่า → ใหม่)';
+
+    sortedSheets.forEach(name => {
+        const isProtected = protectedSheets.includes(name);
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2 rounded-lg bg-white/10';
+        item.innerHTML = `
+            <span class="font-medium ${isProtected ? 'text-gray-400' : ''}">${name}</span>
+            <div class="flex gap-2">
+                <button class="rename-sheet-btn btn p-1 ${isProtected ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/20'}" data-sheet-name="${name}" ${isProtected ? 'disabled' : ''} title="แก้ไขชื่อ">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/></svg>
+                </button>
+                <button class="delete-sheet-btn btn p-1 ${isProtected ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:bg-red-500/20'}" data-sheet-name="${name}" ${isProtected ? 'disabled' : ''} title="ลบชีต">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"/></svg>
+                </button>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+
+    document.querySelectorAll('.rename-sheet-btn').forEach(btn => btn.addEventListener('click', (e) => handleRenameSheet(e.currentTarget.dataset.sheetName)));
+    document.querySelectorAll('.delete-sheet-btn').forEach(btn => btn.addEventListener('click', (e) => handleDeleteSheet(e.currentTarget.dataset.sheetName)));
+}
+
+async function handleCreateNewSheet(event) {
+    event.preventDefault();
+    const input = document.getElementById('new-sheet-name-input');
+    const newSheetName = input.value.trim();
+    if (newSheetName) {
+        showProgress('กำลังสร้างชีตใหม่...', `กำลังคัดลอกข้อมูลไปยังชีต "${newSheetName}"`);
+        try {
+            const result = await order_apiCall('createNewSheet', {}, 'POST', { newSheetName, sheetName: 'Template' });
+            input.value = '';
+            await refreshSheetsAndData(newSheetName, result.message, true);
+        } catch (error) {
+            showSuccessMessage('สร้างชีตไม่สำเร็จ!', error.message, 3000);
+        }
+    }
+}
+
+async function handleRenameSheet(oldName) {
+    const newName = prompt(`ป้อนชื่อใหม่สำหรับชีต "${oldName}"`, oldName);
+
+    if (newName && newName.trim() !== '' && newName.trim() !== oldName) {
+        showProgress('กำลังเปลี่ยนชื่อชีต...');
+        try {
+            await order_apiCall('renameSheet', {}, 'POST', { oldSheetName: oldName, newSheetName: newName.trim(), sheetName: oldName });
+            await refreshSheetsAndData(newName.trim(), 'เปลี่ยนชื่อสำเร็จ!', true);
+        } catch(error) {
+            showSuccessMessage('เปลี่ยนชื่อไม่สำเร็จ!', error.message, 3000);
+        }
+    }
+}
+
+async function handleDeleteSheet(sheetNameToDelete) {
+    const { isConfirmed } = await showConfirmation({
+        title: 'ยืนยันการลบชีต',
+        html: `คุณแน่ใจหรือไม่ว่าต้องการลบชีต <b>"${sheetNameToDelete}"</b> และข้อมูลทั้งหมดในชีตนี้อย่างถาวร? <br><br><b style="color: var(--status-error);">การกระทำนี้ไม่สามารถย้อนกลับได้</b>`,
+        confirmButtonText: 'ใช่, ลบเลย',
+    });
+
+    if (isConfirmed) {
+        showProgress(`กำลังลบชีต "${sheetNameToDelete}"...`);
+        try {
+            await order_apiCall('deleteSheet', {}, 'POST', { sheetName: sheetNameToDelete });
+            await refreshSheetsAndData('List', 'ลบชีตสำเร็จ!', true);
+        } catch(error) {
+            showSuccessMessage('ลบชีตไม่สำเร็จ!', error.message, 3000);
+        }
+    }
+}
+
+async function refreshSheetsAndData(activeSheet, successMessage, showMsg = false) {
+    orderDataCache = {};
+    const result = await order_apiCall('getSheetNames', { for: 'orders' });
+    renderSheetList(result.data);
+    await order_loadSheets();
+    sheetSelector.value = activeSheet;
+    order_currentSheet = activeSheet;
+    await order_loadData(activeSheet, false);
+    if(showMsg) showSuccessMessage(successMessage);
+}
+
+async function exportFullWorkbook_Orders() {
+    showProgress('กำลัง Export...', 'กำลังดึงข้อมูลทั้งหมดจาก Google Sheet');
+    try {
+        const result = await order_apiCall('getFullWorkbookData', { for: 'orders' });
+        if (result && result.data) {
+            const workbook = XLSX.utils.book_new();
+            for (const sheetName in result.data) {
+                if (result.data.hasOwnProperty(sheetName)) {
+                    const sheetData = result.data[sheetName];
+                    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+                    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+                }
+            }
+            XLSX.writeFile(workbook, "Srikhanesh_Orders_Backup.xlsx");
+            hideStatus();
+        } else {
+            throw new Error('ไม่ได้รับข้อมูลที่ถูกต้องจากเซิร์ฟเวอร์');
+        }
+    } catch (error) {
+        showSuccessMessage('Export ไม่สำเร็จ!', error.message, 3000);
+    }
+}
+
+async function handleSheetImportFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    showProgress('กำลังอ่านไฟล์ Excel...', 'กรุณารอสักครู่');
+    
+    try {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const excelSheetNames = workbook.SheetNames;
+
+        const result = await order_apiCall('getSheetNames', { for: 'orders' });
+        const existingSheetNames = new Set(result.data);
+        
+        const newSheets = excelSheetNames.filter(name => !existingSheetNames.has(name));
+        const duplicateSheets = excelSheetNames.filter(name => existingSheetNames.has(name));
+        
+        event.target.value = ''; // Clear file input
+        hideStatus();
+
+        if (newSheets.length === 0) {
+            await showConfirmation({
+                title: 'ไม่พบชีตใหม่',
+                html: `ไม่พบชีตที่สามารถนำเข้าได้ ชีตทั้งหมดในไฟล์นี้มีชื่อซ้ำกับชีตที่มีอยู่แล้ว:<br><div class="mt-2 text-left text-sm">${duplicateSheets.join(', ')}</div>`,
+                confirmButtonText: 'ตกลง',
+                showCancel: false
+            });
+            return;
+        }
+
+        await processSheetImport(workbook, newSheets, duplicateSheets);
+
+    } catch (error) {
+        showSuccessMessage('เกิดข้อผิดพลาด!', `ไม่สามารถอ่านไฟล์ Excel ได้: ${error.message}`, 3000);
+        event.target.value = ''; // Clear file input
+    }
+}
+
+async function processSheetImport(workbook, newSheets, duplicateSheets) {
+    let sheetCheckboxesHtml = '<p>เลือกชีตใหม่ที่ต้องการนำเข้า:</p><div class="max-h-60 overflow-y-auto mt-2 space-y-1">';
+    
+    newSheets.forEach(name => {
+        sheetCheckboxesHtml += `
+            <label class="flex items-center p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors duration-200 cursor-pointer">
+                <input type="checkbox" class="import-sheet-checkbox w-4 h-4 rounded mr-3" value="${name}">
+                <span>${name}</span>
+            </label>
+        `;
+    });
+    sheetCheckboxesHtml += '</div>';
+
+    if (duplicateSheets.length > 0) {
+        sheetCheckboxesHtml += '<p class="mt-4 pt-2 border-t border-white/20 text-yellow-400">ชีตที่มีชื่อซ้ำ (ไม่สามารถนำเข้าได้):</p><div class="max-h-40 overflow-y-auto mt-2 space-y-1">';
+        duplicateSheets.forEach(name => {
+            sheetCheckboxesHtml += `
+                <label class="flex items-center p-2 rounded-lg bg-black/20 text-gray-400 cursor-not-allowed">
+                    <input type="checkbox" class="w-4 h-4 rounded mr-3" disabled>
+                    <span class="line-through">${name}</span>
+                </label>
+            `;
+        });
+        sheetCheckboxesHtml += '</div>';
+    }
+
+
+    const { isConfirmed } = await showConfirmation({
+        title: 'ยืนยันการนำเข้าชีต',
+        html: sheetCheckboxesHtml,
+        confirmButtonText: 'นำเข้าที่เลือก'
+    });
+
+    if (isConfirmed) {
+        const selectedSheetNames = Array.from(document.querySelectorAll('.import-sheet-checkbox:checked')).map(cb => cb.value);
+
+        if (selectedSheetNames.length === 0) {
+            showSuccessMessage('ไม่ได้เลือกชีต', 'กรุณาเลือกอย่างน้อย 1 ชีตเพื่อนำเข้า', 2000);
+            return;
+        }
+
+        showProgress('กำลังนำเข้าชีต...', `กำลังนำเข้า ${selectedSheetNames.length} ชีต`);
+
+        const sheetsData = {};
+        selectedSheetNames.forEach(sheetName => {
+            const worksheet = workbook.Sheets[sheetName];
+            sheetsData[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        });
+
+        try {
+            const result = await order_apiCall('importSheets', {}, 'POST', { sheetsData: sheetsData });
+            await refreshSheetsAndData(order_currentSheet, result.message, true);
+            closeModal('sheet-management-modal');
+        } catch (error) {
+            showSuccessMessage('นำเข้าไม่สำเร็จ!', error.message, 3000);
+        }
+    }
+}
+
+
+// --- Rendering & Data Handling for Orders ---
+async function order_loadSheets() {
+    try {
+        const result = await order_apiCall('getSheetNames', { for: 'orders' });
+        if (result && result.data) {
+            const currentSheetExists = result.data.includes(order_currentSheet);
+            if (!currentSheetExists) { order_currentSheet = 'List'; }
+            sheetSelector.innerHTML = result.data.map(name => `<option value="${name}" ${name === order_currentSheet ? 'selected' : ''}>${name}</option>`).join('');
+        }
+    } catch(error) {
+        // Suppress error
+    }
+}
+
+async function order_loadData(sheetName, showProgressIndicator = true) {
+    if (orderDataCache[sheetName]) {
+        order_currentData = orderDataCache[sheetName];
+        order_renderTable();
+        return;
+    }
+    
+    if(showProgressIndicator) showProgress('กำลังโหลดข้อมูล...');
+    try {
+        const result = await order_apiCall('getData', { sheetName });
+        order_currentData = (result && result.data) ? result.data : [];
+        orderDataCache[sheetName] = order_currentData;
+        order_renderTable();
+        if(showProgressIndicator) hideStatus();
+    } catch(error) {
+        showSuccessMessage('เกิดข้อผิดพลาด!', `ไม่สามารถโหลดข้อมูลได้: ${error.message}`, 3000);
+        order_currentData = [];
+        order_renderTable();
+    }
+}
+
+function order_renderTable() {
+    orderTableBody.innerHTML = '';
+    selectAllCheckbox.checked = false;
+    
+    if (order_currentData.length <= 1) {
+        orderTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-10 font-semibold"></td></tr>';
+        return;
+    }
+
+    order_currentData.slice(1).forEach((row, index) => {
+        const actualIndex = index + 1;
+        const tr = document.createElement('tr');
+        tr.className = index % 2 === 0 ? 'table-row-dark' : 'table-row-light';
+        tr.innerHTML = `
+            <td class="p-2"><input type="checkbox" data-id="${row[0]}" class="row-checkbox w-4 h-4 rounded" style="background-color: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3);"></td>
+            <td class="px-2 py-3 font-medium truncate">${row[0] || ''}</td>
+            <td class="px-2 py-3 truncate" title="${row[1] || ''}">${row[1] || ''}</td>
+            <td class="px-2 py-3 hidden md:table-cell truncate" title="${row[2] || ''}">${row[2] || ''}</td>
+            <td class="px-2 py-3 hidden md:table-cell truncate">${row[3] || ''}</td>
+            <td class="px-2 py-3 text-center">
+                <div class="flex items-center justify-center gap-1">
+                    <button class="view-btn p-1 text-white/70 hover:text-white" data-index="${actualIndex}" title="ดู">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.27 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <button class="print-doc-btn p-1 text-white/70 hover:text-white" data-id="${row[0]}" title="พิมพ์">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <button class="edit-btn p-1 text-white/70 hover:text-white" data-index="${actualIndex}" title="แก้ไข">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <button class="delete-btn p-1 text-white/70 hover:text-[var(--status-error)]" data-index="${actualIndex}" title="ลบ">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                           <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.046a.75.75 0 01.542.115l.078.078a.75.75 0 001.06 0l.078-.078a.75.75 0 01.542-.115l.149.046a.75.75 0 10.23-1.482A41.03 41.03 0 006 4.193V3.75A1.25 1.25 0 017.25 2.5h5.5A1.25 1.25 0 0114 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.046a.75.75 0 01.542.115l.078.078a.75.75 0 001.06 0l.078-.078a.75.75 0 01.542-.115l.149.046a.75.75 0 10.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 8a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5A.75.75 0 0110 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </td>`;
+        orderTableBody.appendChild(tr);
+    });
+}
+
+function order_showViewModal(index) {
+    const data = order_currentData[index];
+    order_itemToCopy = data;
+    const content = document.getElementById('view-modal-content');
+    let itemsHtml = '<h4 class="font-bold text-lg pt-2 border-t border-[rgba(255,255,255,0.2)] text-primary">รายการบูชา</h4><ul class="list-disc list-inside">';
+    let total = 0;
+    for (let i = 4; i < 14; i += 2) {
+        if (data[i] && data[i+1]) {
+            const price = parseFloat(data[i+1]) || 0;
+            itemsHtml += `<li>${data[i]}: ${price.toLocaleString()} บาท</li>`;
+            total += price;
+        }
+    }
+    itemsHtml += '</ul>';
+    content.innerHTML = `<p><strong>จากชีต:</strong> ${order_currentSheet}</p><p><strong>ลำดับ:</strong> ${data[0]}</p><p><strong>ชื่อ:</strong> ${data[1]}</p><p><strong>เบอร์โทร:</strong> ${data[3]}</p><p><strong>ที่อยู่:</strong> ${data[2]}</p>${itemsHtml}<p class="text-right font-bold text-xl mt-4 text-primary">ยอดรวม: ${total.toLocaleString()} บาท</p>`;
+    openModal('view-modal');
+}
+
+function updateItemRowVisibility() {
+    for (let i = 1; i < 5; i++) {
+        const nameInput = document.getElementById(`edit-item-name-${i}`);
+        const priceInput = document.getElementById(`edit-item-price-${i}`);
+        const nextRow = document.getElementById(`item-row-${i + 1}`);
+        if (nameInput && priceInput && nextRow) {
+            if (nameInput.value.trim() !== '' || priceInput.value.trim() !== '') {
+                nextRow.classList.remove('hidden');
+            }
+        }
+    }
+}
+
+function order_showEditModal(index = null) {
+    const isAdding = index === null;
+    const title = document.getElementById('edit-modal-title');
+    const data = isAdding ? [] : order_currentData[index];
+    title.textContent = isAdding ? 'เพิ่มข้อมูลใหม่' : `แก้ไขข้อมูล ลำดับ: ${data[0]}`;
+    document.getElementById('edit-id').value = isAdding ? '' : data[0];
+    document.getElementById('edit-name').value = data[1] || '';
+    document.getElementById('edit-address').value = data[2] || '';
+    document.getElementById('edit-phone').value = data[3] || '';
+    const itemsContainer = document.getElementById('edit-items-container');
+    itemsContainer.innerHTML = '';
+    
+    // Clear the paste area when opening the modal
+    document.getElementById('paste-data-input-order').value = '';
+
+
+    for (let i = 1; i <= 5; i++) {
+        const itemIndex = 2 + (i * 2);
+        const itemName = data[itemIndex] || '';
+        const itemPrice = data[itemIndex + 1] || '';
+        const isHidden = isAdding && i > 1 && !(data[itemIndex-2] || data[itemIndex-1]);
+
+        const rowHtml = `
+            <div id="item-row-${i}" class="grid grid-cols-3 gap-2 ${isHidden ? 'hidden' : ''}">
+                <div class="col-span-2">
+                    <label class="text-sm font-light">รายการบูชา ลำดับที่ ${i}</label>
+                    <input type="text" id="edit-item-name-${i}" value="${itemName}" class="item-input w-full p-2 text-sm" data-row="${i}">
+                </div>
+                <div>
+                    <label class="text-sm font-light">ราคาบูชา ลำดับที่ ${i}</label>
+                    <input type="number" id="edit-item-price-${i}" value="${itemPrice}" class="item-input item-price w-full p-2 text-sm" data-row="${i}">
+                </div>
+            </div>`;
+        itemsContainer.insertAdjacentHTML('beforeend', rowHtml);
+    }
+    
+    itemsContainer.addEventListener('input', (e) => {
+        if (e.target.classList.contains('item-input')) {
+            updateItemRowVisibility();
+        }
+        if (e.target.classList.contains('item-price')) {
+            order_calculateTotal();
+        }
+    });
+
+    order_calculateTotal();
+    openModal('edit-modal');
+}
+
+
+function order_calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('.item-price').forEach(input => { total += parseFloat(input.value) || 0; });
+    document.getElementById('edit-total').textContent = total.toLocaleString();
+}
+
+async function validateOrderForm() {
+    const name = document.getElementById('edit-name').value.trim();
+    let hasAtLeastOneItem = false;
+    for (let i = 1; i <= 5; i++) {
+        const itemName = document.getElementById(`edit-item-name-${i}`).value.trim();
+        const itemPrice = document.getElementById(`edit-item-price-${i}`).value;
+        if (itemName && itemPrice) {
+            hasAtLeastOneItem = true;
+            break;
+        }
+    }
+
+    if (!name || !hasAtLeastOneItem) {
+        let errorHtml = 'กรุณากรอกข้อมูลให้ครบถ้วน: <ul class="text-left mt-2 list-disc list-inside">';
+        if(!name) errorHtml += '<li>กรุณาระบุชื่อลูกค้า</li>';
+        if(!hasAtLeastOneItem) errorHtml += '<li>ต้องมีรายการบูชาและราคาอย่างน้อย 1 รายการ</li>';
+        errorHtml += '</ul>';
+        await showConfirmation({
+            title: 'ข้อมูลไม่ครบถ้วน',
+            html: errorHtml,
+            confirmButtonText: 'ตกลง',
+            showCancel: false,
+        });
+        return false;
+    }
+    return true;
+}
+
+
+async function order_confirmDelete(id, name) {
+    const { isConfirmed } = await showConfirmation({
+        title: 'ยืนยันการลบ',
+        html: `คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของ<br><b>${name} (ลำดับ: ${id})</b>?`,
+        confirmButtonText: 'ใช่, ลบเลย!',
+    });
+    if (isConfirmed) { order_handleDelete(id); }
+}
+
+async function order_handleDelete(id) {
+    showProgress('กำลังลบข้อมูล...');
+    try {
+        const result = await order_apiCall('deleteData', {}, 'POST', { sheetName: order_currentSheet, id: id });
+        delete orderDataCache[order_currentSheet];
+        await order_loadData(order_currentSheet, false);
+        showSuccessMessage('ลบข้อมูลสำเร็จ!');
+    } catch (error) {
+        showSuccessMessage('ลบข้อมูลไม่สำเร็จ!', error.message, 3000);
+    }
+}
+
+const LABEL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ฉลากส่งสินค้า ศรีคเนศเทวาลัย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+font-family: 'Kanit', sans-serif;
+margin: 0;
+padding: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+background-color: #f0f0f0;
+}
+.a6-page {
+width: 10.5cm;
+height: 14.8cm;
+background-image: url('https://img2.pic.in.th/pic/Untitled-4445ef82b7784436dc.png');
+background-size: 97%;
+background-position: center;
+background-repeat: no-repeat;
+box-sizing: border-box;
+padding: 0.2cm;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+position: relative;
+}
+.top-section { padding: 0.5cm; color: #651c70; flex-shrink: 0; min-height: 6.5cm; position: relative; }
+.print-date { position: absolute; top: 0.1cm; text-align: right; right: 1.8cm; font-size: 6pt; font-weight: bold; white-space: nowrap; color: #2b5b45; }
+.order-sequence { position: absolute; top: 0.4cm; text-align: right; right: 1.8cm; font-size: 6pt; font-weight: bold; white-space: nowrap; color: #2b5b45; }
+.sender-phone { position: absolute; top: 1.8cm; left: 75%; text-align: center; transform: translateX(-75%); font-size: 14pt; font-weight: bold; white-space: nowrap; color: #a20100; }
+.recipient-name { position: absolute; top: 2.6cm; left: 2cm; font-size: 14pt; font-weight: bold; white-space: nowrap; color: #2b5b45; }
+.recipient-address { position: absolute; top: 3.6cm; left: 2cm; font-size: 10pt; line-height: 1.4; max-width: 6cm; color: #5f4734; }
+.bottom-section { padding: 0cm 0.5cm 0.5cm 0.5cm; background-color: transparent; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
+.bottom-section h4 { font-weight: bold; margin-bottom: 0.05cm; text-shadow: 0 0 3px white; font-size: 11pt; color: #5f4734; }
+.order-details { font-size: 8pt; font-weight: bold; text-shadow: 0 0 2px white; margin-bottom: 0.0cm; white-space: nowrap; color: #ff0000; }
+.order-details span:first-child { margin-right: 0.5cm; }
+.recipient-info { text-align: left; margin-bottom: 0.05cm; color: #5f4734; font-size: 8pt; }
+.recipient-info p { margin: 0; font-size: 8pt; text-shadow: 0 0 3px white; display: flex; justify-content: space-between; flex-wrap: nowrap; overflow: hidden; }
+.items-table { width: 100%; border-collapse: collapse; }
+.items-table th, .items-table td { border: 0.5px solid #ddd; padding: 3px; text-align: left; font-size: 8pt; text-shadow: 0 0 2px white; white-space: nowrap; color: blue; }
+.items-table th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+.items-table td:last-child { text-align: center; }
+.item-row-1 td { color: red; }
+.item-row-2 td { color: green; }
+.item-row-3 td { color: purple; }
+.item-row-4 td { color: black; }
+.item-row-5 td { color: red; }
+.total-summary { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 0.2cm; text-shadow: 0 0 4px white, 0 0 4px white; white-space: nowrap; color: #ff0801; }
+@media print {
+body { background-color: #fff; display: block; padding: 0; margin: 0; }
+.a6-page { border: none; margin: 0; box-shadow: none; page-break-inside: avoid; page-break-after: always; }
+.a6-page:last-of-type { page-break-after: auto; }
+@page { size: A6; margin: 0.1cm; }
+}
+</style>
+</head>
+<body>
+</body>
+</html>
+`;
+
+const SINGLE_LABEL_STRUCTURE_PREVIEW = `
+<div class="preview-a6-page">
+<div class="preview-top-section">
+<div class="preview-print-date">วันที่: {{DATE}}</div>
+<div class="preview-order-sequence">ลำดับ: {{SEQUENCE}}</div>
+<div class="preview-sender-phone">เบอร์โทร: {{PHONE}}</div>
+<div class="preview-recipient-name">คุณ{{NAME}}</div>
+<div class="preview-recipient-address">{{ADDRESS}}</div>
+</div>
+<div class="preview-bottom-section">
+<h4>รายการบูชาและจัดส่งวัตถุมงคล ศรีคเนศ เทวาลัย</h4>
+<div class="preview-order-details">
+<span>วันที่: {{DATE}}</span>
+<span>ลำดับ: {{SEQUENCE}}</span>
+</div>
+<div class="preview-recipient-info">
+<p><span><strong>ชื่อผู้รับ:</strong> คุณ{{NAME}}</span><span><strong>เบอร์โทรผู้รับ:</strong> {{PHONE}}</span></p>
+</div>
+<table class="preview-items-table">
+<thead><tr><th>รายการบูชาวัตถุมงคล</th><th>ราคา (บาท)</th></tr></thead>
+<tbody>
+<tr class="preview-item-row-1"><td>1. {{ITEM_1}}</td><td>{{PRICE_1}}</td></tr>
+<tr class="preview-item-row-2"><td>2. {{ITEM_2}}</td><td>{{PRICE_2}}</td></tr>
+<tr class="preview-item-row-3"><td>3. {{ITEM_3}}</td><td>{{PRICE_3}}</td></tr>
+<tr class="preview-item-row-4"><td>4. {{ITEM_4}}</td><td>{{PRICE_4}}</td></tr>
+<tr class="preview-item-row-5"><td>5. {{ITEM_5}}</td><td>{{PRICE_5}}</td></tr>
+</tbody>
+</table>
+<div class="preview-total-summary">ยอดรวมบูชา: {{TOTAL}} บาท</div>
+</div>
+</div>
+`;
+
+function executeActualPrint() {
+    closeModal('print-preview-modal');
+    const printWindow = window.open('', '_blank');
+
+    if (!printWindow || printWindow.closed || typeof printWindow.closed == 'undefined') {
+        showConfirmation({
+            title: 'Pop-up ถูกบล็อก',
+            html: 'กรุณาอนุญาต pop-ups สำหรับเว็บไซต์นี้เพื่อพิมพ์ฉลาก',
+            confirmButtonText: 'ตกลง',
+            showCancel: false
+        });
+        return;
+    }
+
+    printWindow.document.write(LABEL_TEMPLATE.replace('<body>', '<body>' + htmlToPrint));
+    printWindow.document.close();
+
+    printWindow.onload = function() {
+        const imageUrl = 'https://img2.pic.in.th/pic/Untitled-4445ef82b7784436dc.png';
+        const img = new printWindow.Image();
+
+        const triggerPrint = () => {
+            printWindow.document.querySelectorAll('.items-table tbody tr').forEach(row => {
+                const firstCell = row.querySelector('td');
+                if (firstCell && firstCell.textContent.replace(/^\\d\.\\s*/, '').trim() === '') {
+                   row.style.display = 'none';
+                }
+            });
+            
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        };
+        
+        img.onload = triggerPrint;
+        img.onerror = triggerPrint; 
+        
+        img.src = imageUrl;
+    };
+}
+
+
+async function order_printLabels(ids) {
+    if (!ids || ids.length === 0) {
+        await showConfirmation({ title: 'ผิดพลาด', html: 'กรุณาเลือกรายการที่ต้องการพิมพ์', confirmButtonText: 'ตกลง', showCancel: false });
+        return;
+    }
+    showProgress('กำลังเตรียมฉลาก...');
+
+    const today = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+
+    let previewHtml = '';
+    htmlToPrint = '';
+    const selectedData = ids.map(id => order_currentData.find(row => row[0] == id)).filter(Boolean);
+
+    if (selectedData.length === 0) {
+        hideStatus();
+        await showConfirmation({ title: 'ผิดพลาด', html: 'ไม่พบข้อมูลสำหรับ ID ที่เลือก', confirmButtonText: 'ตกลง', showCancel: false });
+        return;
+    }
+
+    selectedData.forEach(dataRow => {
+        let labelPreviewHtml = SINGLE_LABEL_STRUCTURE_PREVIEW;
+        
+        const dataMap = {
+            SEQUENCE: dataRow[0] || '', NAME: dataRow[1] || '', ADDRESS: (dataRow[2] || '').replace(/\n/g, '<br>'),
+            PHONE: dataRow[3] || '', ITEM_1: dataRow[4] || '', PRICE_1: dataRow[5] ? parseFloat(dataRow[5]).toLocaleString('th-TH') : '',
+            ITEM_2: dataRow[6] || '', PRICE_2: dataRow[7] ? parseFloat(dataRow[7]).toLocaleString('th-TH') : '',
+            ITEM_3: dataRow[8] || '', PRICE_3: dataRow[9] ? parseFloat(dataRow[9]).toLocaleString('th-TH') : '',
+            ITEM_4: dataRow[10] || '', PRICE_4: dataRow[11] ? parseFloat(dataRow[11]).toLocaleString('th-TH') : '',
+            ITEM_5: dataRow[12] || '', PRICE_5: dataRow[13] ? parseFloat(dataRow[13]).toLocaleString('th-TH') : '',
+            TOTAL: dataRow[14] ? parseFloat(dataRow[14]).toLocaleString('th-TH') : '', DATE: today
+        };
+        
+        let tempPrintPage = LABEL_TEMPLATE.replace(/<body.*?>[\s\S]*<\/body>/, `<body>${SINGLE_LABEL_STRUCTURE_PREVIEW.replaceAll('preview-','')}</body>`);
+
+        for (const key in dataMap) {
+            const regex = new RegExp('{{' + key + '}}', 'g');
+            labelPreviewHtml = labelPreviewHtml.replace(regex, dataMap[key]);
+            tempPrintPage = tempPrintPage.replace(regex, dataMap[key]);
+        }
+        previewHtml += labelPreviewHtml;
+        htmlToPrint += tempPrintPage.match(/<body>(.*?)<\/body>/s)[1];
+    });
+
+    document.getElementById('print-preview-content').innerHTML = previewHtml;
+    
+    document.querySelectorAll('#print-preview-content .preview-items-table tbody tr').forEach(row => {
+        const firstCell = row.querySelector('td');
+        if (firstCell && firstCell.textContent.replace(/^\d\.\\s*/, '').trim() === '') {
+           row.style.display = 'none';
+        }
+    });
+    
+    hideStatus();
+    openModal('print-preview-modal');
+}
+
+
+// --- Event Handlers for Orders ---
+addNewBtn.addEventListener('click', () => order_showEditModal(null));
+sheetSelector.addEventListener('change', (e) => { order_currentSheet = e.target.value; order_loadData(order_currentSheet); });
+
+orderTableBody.addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+    const index = button.dataset.index;
+    const id = button.dataset.id;
+    if (button.classList.contains('view-btn')) { order_showViewModal(index); } 
+    else if (button.classList.contains('edit-btn')) { order_showEditModal(index); } 
+    else if (button.classList.contains('delete-btn')) { const dataRow = order_currentData[index]; order_confirmDelete(dataRow[0], dataRow[1]); }
+    else if (button.classList.contains('print-doc-btn')) { order_printLabels([id]); }
+});
+
+editForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!(await validateOrderForm())) {
+        return;
+    }
+
+    const id = document.getElementById('edit-id').value;
+    const isAdding = id === '';
+    const action = isAdding ? 'addData' : 'updateData';
+    const loadingText = isAdding ? 'กำลังเพิ่มข้อมูล...' : 'กำลังบันทึกการเปลี่ยนแปลง...';
+    showProgress(loadingText);
+
+    const data = { 
+        sheetName: order_currentSheet, 
+        id: id, 
+        name: document.getElementById('edit-name').value.trim(), 
+        address: document.getElementById('edit-address').value.trim(), 
+        phone: document.getElementById('edit-phone').value.trim() 
+    };
+    let total = 0;
+    for (let i = 1; i <= 5; i++) {
+        data[`item${i}`] = document.getElementById(`edit-item-name-${i}`).value;
+        const price = parseFloat(document.getElementById(`edit-item-price-${i}`).value) || 0;
+        data[`price${i}`] = price;
+        total += price;
+    }
+    data['total'] = total;
+    try {
+        const result = await order_apiCall(action, {}, 'POST', data);
+        delete orderDataCache[order_currentSheet];
+        closeModal('edit-modal');
+        await order_loadData(order_currentSheet, false);
+        showSuccessMessage('บันทึกสำเร็จ!', result.message);
+    } catch (error) {
+        showSuccessMessage('บันทึกข้อมูลไม่สำเร็จ!', error.message, 3000);
+    }
+});
+
+copyBtn.addEventListener('click', () => {
+    if (!order_itemToCopy) return;
+    let textToCopy = `ข้อมูลจากชีต: ${order_currentSheet}\nลำดับ: ${order_itemToCopy[0]}\nชื่อ: ${order_itemToCopy[1]}\nที่อยู่: ${order_itemToCopy[2]}\nเบอร์โทร: ${order_itemToCopy[3]}\n\nรายการบูชา:\n`;
+    let total = 0;
+    for (let i = 4; i < 14; i += 2) {
+        if (order_itemToCopy[i] && order_itemToCopy[i+1]) {
+            const price = parseFloat(order_itemToCopy[i+1]) || 0;
+            textToCopy += `- ${order_itemToCopy[i]}: ${price.toLocaleString()} บาท\n`;
+            total += price;
+        }
+    }
+    textToCopy += `\nยอดรวม: ${total.toLocaleString()} บาท`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        showSuccessMessage('คัดลอกสำเร็จ!', '', 1500);
+    }).catch(err => { console.error('Copy failed', err); });
+});
+
+printSelectedBtn.addEventListener('click', () => {
+    const selectedIds = [...document.querySelectorAll('.row-checkbox:checked')].map(cb => cb.dataset.id);
+    order_printLabels(selectedIds);
+});
+
+selectAllCheckbox.addEventListener('change', (e) => {
+    document.querySelectorAll('.row-checkbox').forEach(checkbox => { checkbox.checked = e.target.checked; });
+});
+
+// ===================================================================
+// CUSTOMER MANAGEMENT CODE
+// ===================================================================
+const customerTableBody = document.getElementById('customer-table-body');
+
+async function customer_apiCall(action, params = {}, method = 'GET', body = null) {
+    const url = new URL(SCRIPT_URL_CUSTOMERS);
+    url.searchParams.append('action', action);
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+    try {
+        const options = { method, redirect: 'follow' };
+        if (method === 'POST' && body) {
+            const formData = new URLSearchParams();
+            formData.append('action', action);
+            Object.keys(body).forEach(key => {
+                if (key === 'data' || key === 'ids') { formData.append(key, JSON.stringify(body[key])); } 
+                else { formData.append(key, body[key]); }
+            });
+            options.body = formData;
+        }
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`การเชื่อมต่อล้มเหลว: ${response.status} ${response.statusText}`);
+        
+        const responseText = await response.text();
+        try {
+            const result = JSON.parse(responseText);
+            if (result.status === 'error') throw new Error(result.message);
+            return result;
+        } catch (e) {
+            console.error("Could not parse JSON response from Customer API:", responseText);
+            throw new Error("Received an invalid response from the server. Check Apps Script deployment permissions (should be accessible by 'Anyone').");
+        }
+    } catch (error) {
+        console.error('Customer API Error:', error, 'URL:', url.toString());
+        if (error.message.includes('Failed to fetch') || error instanceof TypeError) {
+             throw new Error('Load failed. This is likely a CORS issue or a network problem. Please ensure the Google Apps Script is deployed to be accessible by "Anyone".');
+        }
+        throw error;
+    }
+}
+
+async function customer_loadData() {
+    showProgress('กำลังโหลดข้อมูลลูกค้า...');
+    try {
+        const result = await customer_apiCall('getData', { for: 'customers' });
+        customer_allData = (result && result.data) ? result.data : [];
+        customer_renderTable(customer_allData);
+        hideStatus();
+    } catch(error) {
+        showSuccessMessage('เกิดข้อผิดพลาด!', `ไม่สามารถโหลดข้อมูลลูกค้าได้: ${error.message}`, 3000);
+        customer_allData = [];
+        customer_renderTable([]);
+    }
+}
+
+function customer_renderTable(data) {
+    customerTableBody.innerHTML = '';
+    
+    if (data.length <= 1) {
+        customerTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-10 font-semibold">ไม่พบข้อมูลลูกค้า</td></tr>';
+        return;
+    }
+
+    const dataToRender = data.slice(1);
+    dataToRender.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.className = index % 2 === 0 ? 'table-row-dark' : 'table-row-light';
+        tr.innerHTML = `
+            <td class="px-2 py-3 font-medium truncate">${row[0] || ''}</td>
+            <td class="px-2 py-3 truncate" title="${row[1] || ''}">${row[1] || ''}</td>
+            <td class="px-2 py-3 hidden md:table-cell truncate" title="${row[2] || ''}">${row[2] || ''}</td>
+            <td class="px-2 py-3 hidden md:table-cell truncate">${row[3] || ''}</td>
+            <td class="px-2 py-3 text-center">
+                <div class="flex items-center justify-center gap-1">
+                    <button class="customer-view-btn p-1 text-white/70 hover:text-white" data-id="${row[0]}" title="ดู"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.27 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg></button>
+                    <button class="customer-edit-btn p-1 text-white/70 hover:text-white" data-id="${row[0]}" title="แก้ไข"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/></svg></button>
+                    <button class="customer-delete-btn p-1 text-white/70 hover:text-[var(--status-error)]" data-id="${row[0]}" title="ลบ"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.046a.75.75 0 01.542.115l.078.078a.75.75 0 001.06 0l.078-.078a.75.75 0 01.542-.115l.149.046a.75.75 0 10.23-1.482A41.03 41.03 0 006 4.193V3.75A1.25 1.25 0 017.25 2.5h5.5A1.25 1.25 0 0114 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.046a.75.75 0 01.542.115l.078.078a.75.75 0 001.06 0l.078-.078a.75.75 0 01.542-.115l.149.046a.75.75 0 10.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 8a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5A.75.75 0 0110 8z" clip-rule="evenodd" /></svg></button>
+                </div>
+            </td>`;
+        customerTableBody.appendChild(tr);
+    });
+}
+
+function handleCustomerSearch(e) {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    if (!searchTerm) { customer_renderTable(customer_allData); return; }
+    if (!customer_allData || customer_allData.length < 2) { return; }
+    const headerRow = customer_allData[0];
+    const dataRows = customer_allData.slice(1);
+    const filteredRows = dataRows.filter(row => {
+        const name = (row[1] || '').toLowerCase();
+        const phone = (row[3] || '').toString().toLowerCase();
+        return name.includes(searchTerm) || phone.includes(searchTerm);
+    });
+    customer_renderTable([headerRow, ...filteredRows]);
+}
+
+function showViewCustomerModal(id) {
+    const data = customer_allData.find(row => row[0] == id);
+    if (!data) return;
+    customer_itemToCopy = data;
+    document.getElementById('customer-view-modal-content').innerHTML = `<p><strong>ID:</strong> ${data[0]}</p><p><strong>ชื่อ:</strong> ${data[1]}</p><p><strong>ที่อยู่:</strong> ${data[2]}</p><p><strong>เบอร์โทร:</strong> ${data[3]}</p>`;
+    openModal('customer-view-modal');
+}
+
+function showEditCustomerModal(id) {
+    const isAdding = id === null;
+    document.getElementById('customer-edit-modal-title').textContent = isAdding ? 'เพิ่มลูกค้าใหม่' : `แก้ไขข้อมูลลูกค้า ID: ${id}`;
+    const data = isAdding ? [] : customer_allData.find(row => row[0] == id);
+    document.getElementById('customer-edit-id').value = id || '';
+    document.getElementById('customer-edit-name').value = data[1] || '';
+    document.getElementById('customer-edit-address').value = data[2] || '';
+    document.getElementById('customer-edit-phone').value = data[3] || '';
+     // Clear the paste area when opening the modal
+    document.getElementById('paste-data-input-customer').value = '';
+    openModal('customer-edit-modal');
+}
+
+async function handleSaveCustomer(e) {
+    e.preventDefault();
+    const id = document.getElementById('customer-edit-id').value;
+    const isAdding = id === '';
+    const action = isAdding ? 'addData' : 'updateData';
+    const loadingText = isAdding ? 'กำลังเพิ่มลูกค้า...' : 'กำลังบันทึกข้อมูลลูกค้า...';
+    showProgress(loadingText);
+    const data = { id: id, name: document.getElementById('customer-edit-name').value, address: document.getElementById('customer-edit-address').value, phone: document.getElementById('customer-edit-phone').value, };
+    try {
+        const result = await customer_apiCall(action, {}, 'POST', data);
+        closeModal('customer-edit-modal');
+        await customer_loadData();
+        showSuccessMessage('บันทึกสำเร็จ!', result.message);
+    } catch(error) {
+       showSuccessMessage('บันทึกข้อมูลไม่สำเร็จ!', error.message, 3000);
+    }
+}
+
+async function handleDeleteCustomer(id) {
+    showProgress('กำลังลบข้อมูลลูกค้า...');
+    try {
+        const result = await customer_apiCall('deleteData', {}, 'POST', { id });
+        await customer_loadData();
+        showSuccessMessage('ลบสำเร็จ!', result.message);
+    } catch(error) {
+        showSuccessMessage('ลบข้อมูลไม่สำเร็จ!', error.message, 3000);
+    }
+}
+
+async function confirmDeleteCustomer(id) {
+    const data = customer_allData.find(row => row[0] == id);
+    const { isConfirmed } = await showConfirmation({
+        title: 'ยืนยันการลบ',
+        html: `คุณต้องการลบข้อมูลของ <b>${data[1]}</b> (ID: ${id}) ใช่หรือไม่?`,
+        confirmButtonText: 'ใช่, ลบเลย'
+    });
+    if (isConfirmed) { handleDeleteCustomer(id); }
+}
+
+function copyCustomerData() {
+    if (!customer_itemToCopy) return;
+    const text = `ID: ${customer_itemToCopy[0]}\nชื่อ: ${customer_itemToCopy[1]}\nที่อยู่: ${customer_itemToCopy[2]}\nเบอร์โทร: ${customer_itemToCopy[3]}`;
+    navigator.clipboard.writeText(text).then(() => { showSuccessMessage('คัดลอกสำเร็จ!', '', 1500); });
+}
+
+document.getElementById('customer-table-body').addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+    const id = button.dataset.id;
+    if (button.classList.contains('customer-view-btn')) showViewCustomerModal(id);
+    else if (button.classList.contains('customer-edit-btn')) showEditCustomerModal(id);
+    else if (button.classList.contains('customer-delete-btn')) confirmDeleteCustomer(id);
+});
+
+async function exportToExcel() {
+    if (customer_allData.length <= 1) { 
+        await showConfirmation({title: 'ไม่มีข้อมูล', html: 'ไม่มีข้อมูลลูกค้าสำหรับส่งออก', confirmButtonText: 'ตกลง', showCancel: false});
+        return; 
+    }
+    const worksheet = XLSX.utils.aoa_to_sheet(customer_allData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "รายชื่อลูกค้า");
+    XLSX.writeFile(workbook, "รายชื่อลูกค้า.xlsx");
+    importExportMenu.classList.add('hidden');
+}
+
+function downloadTemplate() {
+    const templateData = [['ชื่อ', 'ที่อยู่', 'เบอร์โทร']];
+    const worksheet = XLSX.utils.aoa_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+    XLSX.writeFile(workbook, "Template-Customers.xlsx");
+    importExportMenu.classList.add('hidden');
+}
+
+function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        processImportData(jsonData);
+    };
+    reader.readAsArrayBuffer(file);
+    importExportMenu.classList.add('hidden');
+    event.target.value = '';
+}
+
+async function processImportData(importedData) {
+    if (importedData.length <= 1) { 
+        await showConfirmation({title: 'ไม่มีข้อมูล', html: 'ไม่พบข้อมูลในไฟล์ที่เลือกสำหรับนำเข้า', confirmButtonText: 'ตกลง', showCancel: false});
+        return; 
+    }
+
+    const existingPhones = new Set(customer_allData.slice(1).map(row => String(row[3] || '').trim()).filter(Boolean));
+    const existingNames = new Set(customer_allData.slice(1).map(row => String(row[1] || '').trim()).filter(Boolean));
+    
+    const newRows = [];
+    const duplicateRows = [];
+    
+    const headerRow = importedData[0].map(h => String(h).trim());
+    const nameIndex = headerRow.indexOf('ชื่อ');
+    const addressIndex = headerRow.indexOf('ที่อยู่');
+    const phoneIndex = headerRow.indexOf('เบอร์โทร');
+
+    if (nameIndex === -1 && phoneIndex === -1) {
+       await showConfirmation({
+            title: 'ไฟล์ไม่ถูกต้อง', 
+            html: 'ไฟล์ Excel ต้องมีคอลัมน์ "ชื่อ" หรือ "เบอร์โทร"', 
+            confirmButtonText: 'ตกลง', 
+            showCancel: false
+        });
+        return;
+    }
+
+    for(let i = 1; i < importedData.length; i++) {
+        const row = importedData[i];
+        if (!row || row.every(cell => !cell)) continue;
+
+        const name = nameIndex > -1 ? String(row[nameIndex] || '').trim() : '';
+        const phone = phoneIndex > -1 ? String(row[phoneIndex] || '').trim() : '';
+        const address = addressIndex > -1 ? String(row[addressIndex] || '').trim() : '';
+
+        if (!name && !phone) continue;
+
+        if ((phone && existingPhones.has(phone)) || (name && existingNames.has(name))) {
+            duplicateRows.push({ name, address, phone });
+        } else {
+            newRows.push({ name, address, phone });
+            if (phone) existingPhones.add(phone);
+            if (name) existingNames.add(name);
+        }
+    }
+    
+    let summaryHtml = `พบข้อมูลทั้งหมด ${newRows.length + duplicateRows.length} รายการ:<br><ul class="text-left list-disc list-inside ml-4 mt-2">`;
+    summaryHtml += `<li class='text-[var(--status-success)] font-semibold'>ข้อมูลใหม่: ${newRows.length} รายการ</li>`;
+    summaryHtml += `<li class='text-[var(--accent-color)]'>ข้อมูลซ้ำ (จะไม่ถูกนำเข้า): ${duplicateRows.length} รายการ</li>`;
+    summaryHtml += `</ul>`;
+
+    if (newRows.length === 0) {
+        summaryHtml += `<br>ไม่มีข้อมูลใหม่สำหรับนำเข้า`;
+        await showConfirmation({
+            title: 'สรุปการนำเข้า', 
+            html: summaryHtml, 
+            confirmButtonText: 'ตกลง', 
+            showCancel: false
+        });
+        return;
+    }
+
+    summaryHtml += `<br>คุณต้องการนำเข้าข้อมูลใหม่ ${newRows.length} รายการหรือไม่?`;
+    
+    const { isConfirmed } = await showConfirmation({
+        title: 'ยืนยันการนำเข้าข้อมูล',
+        html: summaryHtml,
+        confirmButtonText: `ใช่, นำเข้า`,
+        cancelButtonText: 'ยกเลิก'
+    });
+
+    if (isConfirmed) {
+        showProgress('กำลังนำเข้าข้อมูล...');
+        try {
+            const apiResult = await customer_apiCall('addBulkData', {}, 'POST', { data: newRows });
+            await customer_loadData(); 
+            showSuccessMessage('นำเข้าสำเร็จ!', apiResult.message);
+        } catch(error) {
+            showSuccessMessage('นำเข้าข้อมูลไม่สำเร็จ!', error.message, 3000);
+        }
+    }
+}
+
+
+async function handleCheckDuplicates() {
+    const field = await showChoice({
+        title: 'ตรวจสอบข้อมูลซ้ำ',
+        html: 'กรุณาเลือกคอลัมน์ที่ต้องการตรวจสอบ:',
+        choices: [
+            { text: 'ตรวจสอบจาก "ชื่อ"', value: '1' },
+            { text: 'ตรวจสอบจาก "เบอร์โทร"', value: '3' }
+        ]
+    });
+
+    if (field) {
+        showProgress('กำลังตรวจสอบข้อมูลซ้ำ...');
+        const colIndex = parseInt(field), seen = new Map(), duplicates = [];
+        customer_allData.slice(1).forEach(row => {
+            const key = String(row[colIndex] || '').trim().toLowerCase();
+            if (!key) return;
+            if (seen.has(key)) {
+                if (!duplicates.some(d => d.key === key)) { duplicates.push({ key: key, rows: [seen.get(key), row] }); }
+                else { duplicates.find(d => d.key === key).rows.push(row); }
+            } else { seen.set(key, row); }
+        });
+        hideStatus();
+        displayDuplicatesModal(duplicates);
+    }
+}
+
+
+function displayDuplicatesModal(duplicates) {
+    const content = document.getElementById('duplicates-modal-content');
+    if (duplicates.length === 0) { 
+        content.innerHTML = '<p class="text-center py-4">ไม่พบข้อมูลที่ซ้ำกัน</p>'; 
+    } else { 
+        content.innerHTML = duplicates.map(group => `<div class="border border-white/20 rounded-lg p-2 mb-2"><h4 class="font-bold bg-white/10 p-2 rounded">ค่าที่ซ้ำ: ${group.key}</h4>${group.rows.map(row => `<div class="flex items-center justify-between p-1 border-b border-white/10"><div><input type="checkbox" class="duplicate-checkbox" data-id="${row[0]}"><span class="ml-2">ID: ${row[0]} | ${row[1]} | ${row[3]}</span></div><div><button class="customer-edit-btn btn p-1" data-id="${row[0]}">แก้ไข</button></div></div>`).join('')}</div>`).join(''); 
+    }
+    openModal('duplicates-modal');
+}
+
+document.getElementById('delete-selected-duplicates-btn').addEventListener('click', async () => {
+    const idsToDelete = Array.from(document.querySelectorAll('.duplicate-checkbox:checked')).map(cb => cb.dataset.id);
+    if (idsToDelete.length === 0) { 
+        await showConfirmation({title:'ไม่ได้เลือก', html: 'กรุณาเลือกรายการที่จะลบ', confirmButtonText: 'ตกลง', showCancel: false});
+        return; 
+    }
+    const { isConfirmed } = await showConfirmation({
+        title: 'ยืนยันการลบ',
+        html: `คุณต้องการลบข้อมูลที่เลือก <b>${idsToDelete.length}</b> รายการใช่หรือไม่?`,
+        confirmButtonText: 'ใช่, ลบเลย'
+    });
+    if (isConfirmed) {
+        showProgress('กำลังลบข้อมูลที่ซ้ำ...');
+        try {
+            const apiResult = await customer_apiCall('deleteBulkData', {}, 'POST', { ids: idsToDelete });
+            closeModal('duplicates-modal');
+            await customer_loadData();
+            showSuccessMessage('ลบสำเร็จ!', apiResult.message);
+        } catch(error) {
+            showSuccessMessage('ลบข้อมูลไม่สำเร็จ!', error.message, 3000);
+        }
+    }
+});
+
+async function openCustomerSearch() {
+    if (customer_allData.length === 0) { await customer_loadData(); }
+    renderCustomerSearchTable(customer_allData);
+    openModal('customer-search-modal');
+}
+
+function renderCustomerSearchTable(data) {
+    const tableBody = document.getElementById('customer-search-table-body');
+    tableBody.innerHTML = '';
+    const dataToRender = data.slice(1);
+    if (dataToRender.length === 0) { tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">ไม่พบข้อมูลลูกค้า</td></tr>'; return; }
+    dataToRender.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.className = index % 2 === 0 ? 'table-row-dark' : 'table-row-light';
+        tr.innerHTML = `<td class="px-4 py-2 whitespace-nowrap">${row[1] || ''}</td><td class="px-4 py-2 whitespace-nowrap">${row[3] || ''}</td><td class="px-4 py-2 whitespace-nowrap truncate" title="${row[2] || ''}">${row[2] || ''}</td><td class="px-4 py-2 text-center"><button type="button" class="btn btn-primary px-3 py-1 text-sm select-customer-btn" data-id="${row[0]}">เลือก</button></td>`;
+        tableBody.appendChild(tr);
+    });
+}
+
+function handleOrderCustomerSearch(e) {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    if (!searchTerm) { renderCustomerSearchTable(customer_allData); return; }
+    const headerRow = customer_allData[0];
+    const filteredRows = customer_allData.slice(1).filter(row => {
+        const name = (row[1] || '').toLowerCase();
+        const phone = (row[3] || '').toString().toLowerCase();
+        return name.includes(searchTerm) || phone.includes(searchTerm);
+    });
+    renderCustomerSearchTable([headerRow, ...filteredRows]);
+}
+
+function handleSelectCustomer(e) {
+    const button = e.target.closest('.select-customer-btn');
+    if (!button) return;
+    const customerId = button.dataset.id;
+    const customer = customer_allData.find(row => row[0] == customerId);
+    if (customer) {
+        document.getElementById('edit-name').value = customer[1] || '';
+        document.getElementById('edit-phone').value = customer[3] || '';
+        document.getElementById('edit-address').value = customer[2] || '';
+    }
+    closeModal('customer-search-modal');
+}
+</script>
+
 </body>
 </html>
